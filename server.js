@@ -1,6 +1,7 @@
 var restify = require('restify'),
-    gw = require('./lib/jsep-to-sip').Gateway;
+    JSEPGateway = require('./lib/jsep-to-sip');
 
+var gw = new JSEPGateway();
 var server = restify.createServer({
     name: 'jsep-to-sip-gateway',
       version: '0.0.1'
@@ -11,22 +12,25 @@ server.use(restify.queryParser());
 server.use(restify.bodyParser());
 
 server.post('/session', function (req, res, next) {
-    var callbackUrl = req.body.callbackUrl;
+    var callbackUrl = JSON.parse(req.body).callbackUrl;
     if(callbackUrl){
       var uuid = gw.AddJSEPSession( function(){
         console.log('Did callback ' + callbackUrl); 
       });
     console.log('jsep session created with uuid ' + uuid);
-    res.send({uuid : uuid, session: active});
+    res.send({uuid : uuid, session: 'active'});
     }else{
+      console.log('No callbackUrl');
+      console.log(req.body);
       res.send(400);
       return next();
     }
 });
 
 server.put('/session/:uuid', function (req, res, next){
-    gw.AddJSEPMessage(req.params.uuid,req.body);
-    res.send(req.params);
+    console.log('request for session ' + req.params.uuid); 
+    gw.AddJSEPMessage(req.params.uuid,JSON.parse(req.body));
+    res.send(200);
       return next();
 });
 
