@@ -1,7 +1,9 @@
 var restify = require('restify'),
-    JSEPGateway = require('./lib/jsep-to-sip');
+    JSEPGateway = require('./lib/jsep-to-sip'),
+    request = require('request');
 
 var gw = new JSEPGateway();
+console.log(gw);
 var server = restify.createServer({
     name: 'jsep-to-sip-gateway',
       version: '0.0.1'
@@ -16,6 +18,17 @@ server.post('/session', function (req, res, next) {
     if(callbackUrl){
       var uuid = gw.AddJSEPSession( function(){
         console.log('Did callback ' + callbackUrl); 
+      });
+      gw.on(uuid,function(event){
+        console.log('Did callback ' + callbackUrl); 
+        console.log(event);
+        request({ method: 'POST',
+                  uri: callbackUrl + uuid,
+                  json: true,
+                  body: event}, function(error, response, body){
+                    if(error) console.log(error); 
+                    console.log('sent event back to web service');
+                  });
       });
     console.log('jsep session created with uuid ' + uuid);
     res.send({uuid : uuid, session: 'active'});
