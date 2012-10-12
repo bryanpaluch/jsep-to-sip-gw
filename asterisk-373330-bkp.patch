@@ -181,7 +181,7 @@ Index: channels/chan_sip.c
 +{
 +	// FIXME: For now, we pretend that all clients connected using WebSocket transport are Chrome and we need to enable ICE-JINGLE
 +	// instead of RFC 5245
-+	return (!strncasecmp(get_transport_pvt(p), "WSS", 3) || !strncasecmp(get_transport_pvt(p), "WS", 2));
++	return (!strncasecmp(get_transport_pvt(p), "WSS", 3) || !strncasecmp(get_transport_pvt(p), "WS", 2) || (!strncasecmp(p->useragent, "JSEP", 4));
 +	// return (p->useragent && strstr(p->useragent, "chrome"));
 +}
 +
