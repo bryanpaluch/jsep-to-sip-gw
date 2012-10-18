@@ -15,7 +15,10 @@ server.use(restify.queryParser());
 server.use(restify.bodyParser());
 
 server.post('/session', function (req, res, next) {
-    var callbackUrl = JSON.parse(req.body).callbackUrl;
+    var body = JSON.parse(req.body);
+    var callbackUrl = body.callbackUrl;
+    var to = body.to;
+    var from = body.from;
     if(callbackUrl){
       var uuid = gw.AddJSEPSession({to: '101', from: '1061'}, function(){
         console.log('Did callback ' + callbackUrl); 
@@ -29,19 +32,21 @@ server.post('/session', function (req, res, next) {
                   uri: callbackUrl + uuid,
                   json: true,
                   body: event}, function(error, response, body){
-                    if(error) console.log(error); 
+                    if(error) 
+                      return next(error); 
                     console.log('sent event back to web service');
                   });
       });
       }else{
+        return(new Error('event already subscribed'));
         console.log('event already subscribed');
       }
-    console.log('jsep session created with uuid ' + uuid);
-    res.send({uuid : uuid, session: 'active'});
+      console.log('jsep session created with uuid ' + uuid);
+      res.send({uuid : uuid, session: 'active'});
     }else{
       console.log('No callbackUrl');
       console.log(req.body);
-      res.send(400);
+      res.send(400, new Error('no callback url'));
       return next();
     }
 });
@@ -61,5 +66,5 @@ server.del('/session/:uuid', function(req, res, next){
 });
 
 server.listen(8080, function () {
-    console.log('%s listening at %s', server.name, server.url);
+    console.log('JSEP to Sip Gateway %s listening at %s', server.name, server.url);
 });
