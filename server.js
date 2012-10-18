@@ -2,8 +2,9 @@ var restify = require('restify'),
     JSEPGateway = require('./lib/jsep-to-sip'),
     request = require('request');
 
-var gw = new JSEPGateway();
-console.log(gw);
+var env = process.env.NODE_ENV || 'development';
+var config = require('./config')[env];
+var gw = new JSEPGateway(config);
 var server = restify.createServer({
     name: 'jsep-to-sip-gateway',
       version: '0.0.1'
@@ -19,6 +20,8 @@ server.post('/session', function (req, res, next) {
       var uuid = gw.AddJSEPSession( function(){
         console.log('Did callback ' + callbackUrl); 
       });
+      console.log(gw.listeners(uuid));
+      if(gw.listeners(uuid).length === 0){
       gw.on(uuid,function(event){
         console.log('Did callback ' + callbackUrl); 
         console.log(event);
@@ -30,6 +33,9 @@ server.post('/session', function (req, res, next) {
                     console.log('sent event back to web service');
                   });
       });
+      }else{
+        console.log('event already subscribed');
+      }
     console.log('jsep session created with uuid ' + uuid);
     res.send({uuid : uuid, session: 'active'});
     }else{
@@ -47,6 +53,12 @@ server.put('/session/:uuid', function (req, res, next){
       return next();
 });
 
+server.del('/session/:uuid', function(req, res, next){
+  console.log('request to delete session ' + req.params.uuid);
+  gw.EndJSEPSession(req.params.uuid);
+  res.send(200);
+    return next();
+});
 
 server.listen(8080, function () {
     console.log('%s listening at %s', server.name, server.url);
