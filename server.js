@@ -17,7 +17,7 @@ server.use(restify.bodyParser());
 server.post('/session', function (req, res, next) {
     var callbackUrl = JSON.parse(req.body).callbackUrl;
     if(callbackUrl){
-      var uuid = gw.AddJSEPSession( function(){
+      var uuid = gw.AddJSEPSession({to: '101', from: '1061'}, function(){
         console.log('Did callback ' + callbackUrl); 
       });
       console.log(gw.listeners(uuid));
