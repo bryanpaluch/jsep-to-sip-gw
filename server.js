@@ -1,6 +1,7 @@
 var restify = require('restify'),
     JSEPGateway = require('./lib/jsep-to-sip'),
-    request = require('request');
+    request = require('request'),
+    logger = require('./lib/logwinston');
 
 var env = process.env.NODE_ENV || 'development';
 var config = require('./config')[env];
@@ -20,5 +21,5 @@ server.put('/session/:uuid', jsepSession.add);
 server.del('/session/:uuid', jsepSession.remove);
 
 server.listen(8080, function () {
-    console.log('JSEP to Sip Gateway %s listening at %s', server.name, server.url);
+    logger.log('info', 'JSEP to Sip Gateway ' + server.name + 'listening at '+ server.url);
 });
