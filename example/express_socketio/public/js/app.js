@@ -17,7 +17,7 @@ var userMediaReady = false;
 var isRTCPeerConnection = true;
 var mediaConstraints = {
 	'has_audio': true,
-	'has_video': true
+	'has_video': false, 
 };
 
 //For now JSEP to SIP only supports voice
@@ -170,8 +170,39 @@ function doAnswer() {
 }
 
 function setLocalAndSendMessage(sessionDescription) {
-	pc.setLocalDescription(sessionDescription);
+  if(voiceOnly){
+    console.log('voiceonly call striping video from sdp');
+  stripVideo(sessionDescription, function(sdp){
+  pc.setLocalDescription(sessionDescription);
+  console.log('local SDP');
+  console.log(sessionDescription);
 	sendMessage(sessionDescription);
+  });
+  }else{
+  pc.setLocalDescription(sessionDescription);
+  console.log('local SDP');
+  console.log(sessionDescription);
+	sendMessage(sessionDescription);
+  }
+}
+
+function stripVideo(sdp, cb){
+  // quick and dirty sip parsing
+ var sdpLines = sdp.sdp.split('\r\n');
+ var m = 0;
+ sdp.sdp = '';
+ for(var a = 0; a < sdpLines.length; a++){
+ var lineType = sdpLines[a].split('=')[0];
+   if(lineType == 'm'){
+     m++;
+     console.log(m + 'hit m');
+     if(m > 1){
+       cb(sdp);
+       return;
+     }
+   }
+   sdp.sdp += sdpLines[a] + '\r\n';
+  }
 }
 
 function sendMessage(message) {
@@ -365,7 +396,7 @@ function transitionToWaiting() {
      $("#statusarea").html("<h3>Calling " + currentTarget + "</h1>");
      $("#statusarea").animate({opacity:1},300);
     });
-    voiceOnly = false;
+    voiceOnly = true;
   }else{
 	setTimeout(function() {
 		remoteVideo.src = ""
