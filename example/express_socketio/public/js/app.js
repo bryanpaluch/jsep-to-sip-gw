@@ -105,7 +105,7 @@ function createPeerConnection() {
     if(currentTargetType === 'phone'){
       var mediaConstraints = {
 	    'has_audio': true,
-	    'has_video': false 
+	    'has_video': true 
      };
     }
 	} catch(e) {
@@ -170,40 +170,19 @@ function doAnswer() {
 }
 
 function setLocalAndSendMessage(sessionDescription) {
+ //fix to make sdp without video 
   if(voiceOnly){
     console.log('voiceonly call striping video from sdp');
-  stripVideo(sessionDescription, function(sdp){
-  pc.setLocalDescription(sessionDescription);
-  console.log('local SDP');
-  console.log(sessionDescription);
-	sendMessage(sessionDescription);
-  });
-  }else{
-  pc.setLocalDescription(sessionDescription);
-  console.log('local SDP');
-  console.log(sessionDescription);
-	sendMessage(sessionDescription);
+    console.log(sessionDescription);
+  sessionDescription.sdp = sessionDescription.sdp.substring(0, sessionDescription.sdp.indexOf('m=video')); 
   }
+  pc.setLocalDescription(sessionDescription);
+  console.log('local SDP');
+  console.log(sessionDescription);
+	sendMessage(sessionDescription);
+  
 }
 
-function stripVideo(sdp, cb){
-  // quick and dirty sip parsing
- var sdpLines = sdp.sdp.split('\r\n');
- var m = 0;
- sdp.sdp = '';
- for(var a = 0; a < sdpLines.length; a++){
- var lineType = sdpLines[a].split('=')[0];
-   if(lineType == 'm'){
-     m++;
-     console.log(m + 'hit m');
-     if(m > 1){
-       cb(sdp);
-       return;
-     }
-   }
-   sdp.sdp += sdpLines[a] + '\r\n';
-  }
-}
 
 function sendMessage(message) {
 	message.target = currentTarget;
