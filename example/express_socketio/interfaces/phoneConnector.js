@@ -1,21 +1,17 @@
-var restify = require('restify');
-var client = restify.createJsonClient({
-	version: '*',
-	url: 'http://127.0.0.1:8080'
-});
+var request = require('request');
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var _ = require('underscore');
 var app;
 var sessions = {};
 var targets = {};
-
-
+var url = '';
 function PhoneConnector() {
   var self = this;
-  app.post('/session/:uuid', function(req, res){
+  app.post('/session/:uuid', function(req, res, err){
     var message = req.body; 
     console.log('someone messaged phoneConnector back');
+    console.log(req.method + ' ' + req.path); 
     console.log(message); 
     if(message){
       if(message.type == 'answer'){
@@ -30,14 +26,14 @@ function PhoneConnector() {
                 console.log(candidate);
                 var target = targets[req.params.uuid];
                 candidate['target'] = target;
-                candidate['from'] = sessions[target].from;
+                candidate['remoteTarget'] = sessions[target].remoteTarget;
                 self.emit('event',candidate);
             } 
         }
       else if(message.type == 'bye'){
         var target = targets[req.params.uuid];
         message['target'] = target;
-        message['from'] = sessions[target].from;
+        message['remoteTarget'] = sessions[target].remoteTarget;
         self.emit('event',message);
       }
       else
@@ -83,18 +79,19 @@ PhoneConnector.prototype.send = function(data){
 exports.PhoneConnector = PhoneConnector;
 
 function doOffer(data) {
-  var from = data.target;
+  var remoteTarget = data.target;
   var offerData = data;
   var target = data.from;
   var toTN = data.toTN;
   var fromTN = data.fromTN;
-  sessions[target] = {active : false, candidates: [], uuid : null, from: from};
-	client.post('/session', {phoneNumber: '1002',
+  sessions[target] = {active : false, candidates: [], uuid : null, remoteTarget: remoteTarget};
+	request.post({url: url + '/session',json: {
 		callbackUrl: 'http://127.0.0.1:3000/session/',
     to: toTN,
-    from: fromTN
-	},
-	function(err, req, res, data) {
+    from: fromTN,
+    fromDisplay: 'rtcgateway'
+	}},
+	function(err,res, data) {
 		if (err) 
 			return new Error(err);
 		else {
@@ -112,7 +109,7 @@ function doOffer(data) {
       console.log(sessions[target]);
       if(sessions[target].candidates.length > 0)
         doCandidates(sessions[target].candidates);
-      client.put('/session/' + uuid, offerData, function(err, req, res, data){
+      request.put({url : url + '/session/' + uuid,json: offerData}, function(err, res, data){
         if(err){
           console.log('phoneConnector: session SDP put failed');
           return new Error(err);
@@ -134,7 +131,7 @@ function doCandidate(data) {
   console.log('phoneConnector: new candidate for session ' + target);
   if(sessions[target]){
     if(sessions[target].active == true){
-      client.put('/session/' + sessions[target].uuid,data, function (err, req, res, data){
+      request.put({url: url + '/session/' + sessions[target].uuid,json: data}, function (err, res, data){
         if(err)
           return new Error(err);
         else{
@@ -156,7 +153,7 @@ function doBye(data){
   console.log('phoneConnector: request to end session ' + target);
   if(sessions[target]){
     if(sessions[target].active == true){
-      client.del('/session/' + sessions[target].uuid, function (err, req, res, data){
+      request.del({url: url + '/session/' + sessions[target].uuid}, function (err, res, data){
         if(err)
           return new Error(err);
         else{
@@ -170,6 +167,7 @@ function doBye(data){
 }
 
 exports.EndPoint = function(ExpressInstance, config){
+  url = config.jsep2sipgw || "http://127.0.0.1:8080";
   app = ExpressInstance; 
 }
 

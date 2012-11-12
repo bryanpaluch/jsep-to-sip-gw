@@ -12,8 +12,6 @@ module.exports = function(server) {
     });
 		
     socket.on('rtc_request', function(data) {
-			console.log("user id of this message is " + this.handshake.sessionID);
-			console.log(data);
 			var target = data.target;
 			data.from = this.id;
 			if (data.type == 'offer' || data.type == 'answer') {
@@ -22,8 +20,10 @@ module.exports = function(server) {
       if(data.type == 'offer'){
               data.toTN = data.target;
               data.fromTN = '8605818926';
+			        console.log(data);
               pc.send(data);
       }else{
+			        console.log(data);
               pc.send(data);
         }
 		});

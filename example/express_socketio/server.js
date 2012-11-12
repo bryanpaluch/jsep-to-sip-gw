@@ -27,7 +27,7 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
-require('./interfaces/phoneConnector').EndPoint(app);
+require('./interfaces/phoneConnector').EndPoint(app, {jsep2sipgw: "http://127.0.0.1:8080"});
 //make sure to intialize phoneConnector before sockets because the routes need to be populated with the express app first.
 //And sockets uses phoneConnector for events
 require('./interfaces/sockets')(server);
