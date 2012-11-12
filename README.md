@@ -14,8 +14,8 @@ JSEP2SIP uses rest http to set up sip sessions and make calls. To start a sessio
 POST /session
 
 { callbackUrl: 'http://127.0.0.1:3000/session/',
-  to: '2152868972',
-  from: '8605818926',
+  to: '2155558972',
+  from: '8605558926',
   fromDisplay: 'rtcgateway' }
 ***
 200 OK
