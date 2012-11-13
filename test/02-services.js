@@ -18,7 +18,7 @@ var candidate1 = { type: 'candidate',
 describe('service: session', function() {
   describe('200 check for create session', function(){
     it('should get a 200 response with uuid', function () {
-      client.post('/session',{callbackUrl: 'http://127.0.0.1:3000/someid'}, function(err, req, res, data){
+      client.post('/session',{callbackUrl: 'http://127.0.0.1:3000/session'}, function(err, req, res, data){
         if (err) {
           throw new Error(err);
         }
