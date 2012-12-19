@@ -23,7 +23,10 @@ POST /session
 { uuid: '9730da20-2cff-11e2-8cfa-a7321c63ab07',
   session: 'active' }
 
-
+PUT /session/9730da20-2cff-11e2-8cfa-a7321c63ab07
+{ type: 'offer',
+  sdp: 'v=0\r\no=root 1005297644 1005297644 IN IP4 10.255.132.183\r\ns=Asterisk PBX SVN-trunk-r376131M\r\nt=0 0\r\nm=audio 16924 RTP/SAVPF 8 101\r\nc=IN IP4 10.255.132.183\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-16\r\na=silenceSupp:off - - - -\r\na=ptime:20\r\na=ice-ufrag:3eea3ace428731065a2db4090130aa20\r\na=ice-pwd:7191a5b40f559763760ff02479b5df84\r\na=sendrecv\r\na=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:KpfdzAsRKVMkhgG0CdTNSBy19z6e7K0yZOHOAuZM\r\n',
+  voiceOnly: true }
 //Use the returned UUID to add candidates from RTCPeerConnection
 
 
