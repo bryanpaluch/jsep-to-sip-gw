@@ -15,10 +15,10 @@ var hash = null;
 var socketReady = false;
 var userMediaReady = false;
 var isRTCPeerConnection = true;
-var mediaConstraints = {
-	'has_audio': true,
-	'has_video': false, 
-};
+var mediaConstraints = {'mandatory':{
+	'OfferToReceiveAudio': true,
+	'OfferToReceiveVideo': false, 
+}};
 
 //For now JSEP to SIP only supports voice
 var voiceOnly = true;
