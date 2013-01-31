@@ -11,7 +11,7 @@ module.exports = function(server) {
 		
     });
 		
-    socket.on('rtc_request', function(data) {
+    socket.on('rtc_client_message', function(data) {
 			var target = data.target;
 			data.from = this.id;
 			if (data.type == 'offer' || data.type == 'answer') {
@@ -30,7 +30,7 @@ module.exports = function(server) {
 	});
   pc.on('event', function(data){
       var target = data.target;
-      io.sockets.socket(target).emit('rtc_request', data);
+      io.sockets.socket(target).emit('rtc_server_message', data);
       console.log('sent to client ' + target);
   });
 }

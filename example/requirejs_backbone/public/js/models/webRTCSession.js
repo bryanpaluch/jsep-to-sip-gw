@@ -57,16 +57,20 @@ define([
 
   var webRTCSession = Backbone.Model.extend({
     defaults: {
-     pc_config = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]},
-     pc_constraints = {"optional": []},
+     pc_config : {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]},
+     pc_constraints : {"optional": []},
      setOpus: false,
-     mediaConstraints = {'mandatory': {
+     mediaConstraints : {'mandatory': {
                             'OfferToReceiveAudio':true, 
                             'OfferToReceiveVideo':true }},
-     voiceOnly: false
+     voiceOnly: false,
+     capable: true
     },
     initialize: function(){
-      this.set('capable',true);
+      
+      //bind all functions to this!
+      _.bindAll(this); 
+      
       //Fire get user Media as soon as the model is established.
       //trigger the ready event once this happens
       this._gUM();
@@ -104,6 +108,19 @@ define([
         pc.createOffer(self._setLocalAndSendMessage, null, self.get('mediaConstraints'));
       });
     },
+    onSignalingMessage: function(msg){
+      console.log('webrtcsession got a signaling message'); 
+      if (msg.type === 'answer' && started) {
+        this.pc.setRemoteDescription(new RTCSessionDescription(msg));
+      } 
+      else if (msg.type === 'candidate' && started) {
+        var candidate = new RTCIceCandidate({sdpMLineIndex:msg.label,
+                                             candidate:msg.candidate});
+        this.pc.addIceCandidate(candidate);
+      } else if (msg.type === 'bye' && started) {
+        this._onRemoteHangup();
+      }
+    },
     _setLocalAndSendMessage: function(sessionDescription){
       if(this.get('setOpus')){
         sessionDescription.sdp = this._preferOpus(sessionDescription.sdp);
@@ -118,21 +135,35 @@ define([
     },
     _createPeerConnection: function(cb){
       var pc;
+      console.log(this);
       try{
-        var pc = new RTCPeerConnection(this.attributes.pc_config, this.attributes.pc_constraints);
+        var pc = new RTCPeerConnection(this.get('pc_config'), this.get('pc_constraints'));
         pc.onicecandidate = this._onIceCandidate;
         console.log("Created RTCPeerConnnection with:\n" + 
                     "  config: \"" + JSON.stringify(pc_config) + "\";\n" + 
                     "  constraints: \"" + JSON.stringify(pc_constraints) + "\".");
       }
       catch(e){
-        this.trigger('error' "Failed to create PeerConnection, exception: " + e.message);
+        this.trigger('error', "Failed to create PeerConnection, exception: " + e.message);
       }
       pc.onconnecting = this._onSessionConnecting;
       pc.onopen = this._onSessionOpened;
       pc.onaddstream = this._onRemoteStreamAdded;
       pc.onremovestream = this._onRemoteStreamRemoved;
       cb(pc);
+    },
+    _onIceCandidate: function(event){
+      if(event.candidate){
+      this.emitSignalingMessage({target: this.get('currentTarget'), 
+                                type: 'candidate',
+                                label: event.candidate.sdpMLineIndex,
+                                id: event.candidate.sdpMid,
+                                candidate: event.candidate.candidate
+                                });_
+	    } else {
+		  this.emitSignalingMessage({target: this.get('currentTarget'), type: 'icefinished'});
+      console.log('end of candidates');
+      }
     },
     _onSessionConnection: function(message){
       console.log("session connecting");
