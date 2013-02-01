@@ -67,7 +67,10 @@ define([
      capable: true
     },
     initialize: function(){
-      
+      if(this.get('voiceOnly')){
+        this.set('mediaConstraints', {'mandatory': 
+                 { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': false}});
+      }
       //bind all functions to this!
       _.bindAll(this); 
       
@@ -94,6 +97,7 @@ define([
     _onUserMediaSuccess:function(stream) {
       console.log("User has granted access to local media.");
       this.set('localStream',stream); 
+      this.trigger('localStreamAdded');
       this.trigger('ready'); 
     },
     _onUserMediaError:function(error){
@@ -103,31 +107,38 @@ define([
       var self = this;
       this.set('state', 'waiting'); 
       this.set('currentTarget', callerInfo.number);
+      var mc = self.get('mediaConstraints');
+      console.log(mc);
       this._createPeerConnection(function(pc){
         self.pc = pc;
+        self.pc.addStream(self.get('localStream'));
         pc.createOffer(self._setLocalAndSendMessage, null, self.get('mediaConstraints'));
       });
+      this.set('started', true);
     },
     onSignalingMessage: function(msg){
       console.log('webrtcsession got a signaling message'); 
-      if (msg.type === 'answer' && started) {
+      if (msg.type === 'answer' && this.get('started')) {
+        console.log('got answer setting remote description');
         this.pc.setRemoteDescription(new RTCSessionDescription(msg));
       } 
-      else if (msg.type === 'candidate' && started) {
+      else if (msg.type === 'candidate' && this.get('started')) {
+        console.log('got a candidate adding it');
         var candidate = new RTCIceCandidate({sdpMLineIndex:msg.label,
                                              candidate:msg.candidate});
         this.pc.addIceCandidate(candidate);
-      } else if (msg.type === 'bye' && started) {
+      } else if (msg.type === 'bye' && this.get('started')) {
         this._onRemoteHangup();
       }
     },
     _setLocalAndSendMessage: function(sessionDescription){
+      console.log(sessionDescription);
       if(this.get('setOpus')){
         sessionDescription.sdp = this._preferOpus(sessionDescription.sdp);
       }
       if(this.get('voiceOnly')){
         sessionDescription.sdp = sessionDescription.sdp.substring(0, 
-                                    sessionDescription.sdp.indexOf('m=video'));
+                                  sessionDescription.sdp.indexOf('m=video')); 
       }
       this.pc.setLocalDescription(sessionDescription);
       sessionDescription.target = this.get('currentTarget');
@@ -135,9 +146,10 @@ define([
     },
     _createPeerConnection: function(cb){
       var pc;
-      console.log(this);
       try{
-        var pc = new RTCPeerConnection(this.get('pc_config'), this.get('pc_constraints'));
+        var pc_config = this.get('pc_config');
+        var pc_constraints = this.get('pc_constraints');
+        var pc = new RTCPeerConnection(pc_config, pc_constraints);
         pc.onicecandidate = this._onIceCandidate;
         console.log("Created RTCPeerConnnection with:\n" + 
                     "  config: \"" + JSON.stringify(pc_config) + "\";\n" + 
@@ -153,17 +165,19 @@ define([
       cb(pc);
     },
     _onIceCandidate: function(event){
+      console.log('got another ice candidate');
+      console.log(event);
       if(event.candidate){
-      this.emitSignalingMessage({target: this.get('currentTarget'), 
-                                type: 'candidate',
-                                label: event.candidate.sdpMLineIndex,
-                                id: event.candidate.sdpMid,
-                                candidate: event.candidate.candidate
-                                });_
-	    } else {
-		  this.emitSignalingMessage({target: this.get('currentTarget'), type: 'icefinished'});
-      console.log('end of candidates');
-      }
+        this.emitSignalingMessage({target: this.get('currentTarget'), 
+                                  type: 'candidate',
+                                  label: event.candidate.sdpMLineIndex,
+                                  id: event.candidate.sdpMid,
+                                  candidate: event.candidate.candidate
+                                  });
+        } else {
+        this.emitSignalingMessage({target: this.get('currentTarget'), type: 'icefinished'});
+        console.log('end of candidates');
+        }
     },
     _onSessionConnection: function(message){
       console.log("session connecting");
@@ -172,19 +186,31 @@ define([
       console.log('session opened');
     },
     _onRemoteStreamAdded:function(event){
+      console.log('remote stream added');
       this.set('remoteStream', event.stream);
       this.trigger('remoteStreamAdded');
+      this._waitForRemoteVideo();
+     // this.set('state', 'connected');
     },
     _onRemoteStreamRemoved: function(event){
       console.log('remote stream removed');
+      this.set('state', 'disconnected');
       this.set('remoteStream', null);
       this.trigger('remoteStreamRemoved');
+    },
+    _onRemoteHangup: function(event){
+      this.set('state', 'disconnected');
+      this.trigger('remoteHangup'); 
     },
     _waitForRemoteVideo: function(){
       var remoteStream = this.get('remoteStream');
       var videoTracks = remoteStream.getVideoTracks();
       console.log(videoTracks);
-      if( videoTracks.length() === 0 || this.get('remoteVideoTag').currentTime > 0){
+      if(  videoTracks.length === 0
+        || this.get('remoteVideoTag').currentTime > 0
+        || this.get('voiceOnly'))
+      {
+        this.set('state', 'connected');
         this.trigger('remoteStreamReady');
       } else{
         setTimeout(this._waitForRemoteVideo, 100);

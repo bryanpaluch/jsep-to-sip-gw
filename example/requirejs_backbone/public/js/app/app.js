@@ -141,7 +141,7 @@ function maybeStart() {
 }
 function doCall() {
 	console.log("Sending offer to peer");
-	if (isRTCPeerConnection) {
+	 (isRTCPeerConnection) {
 		pc.createOffer(setLocalAndSendMessage, null, mediaConstraints);
 	} else {
 		var offer = pc.createOffer(mediaConstraints);
