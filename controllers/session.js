@@ -20,6 +20,7 @@ exports.create = function (req, res, next) {
                   json: true,
                   body: event}, 
                   function(error, response, body){
+                    console.log(error);
                     if(error) 
                       return next(error); 
                   });

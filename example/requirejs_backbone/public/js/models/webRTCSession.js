@@ -136,10 +136,10 @@ define([
       if(this.get('setOpus')){
         sessionDescription.sdp = this._preferOpus(sessionDescription.sdp);
       }
-      if(this.get('voiceOnly')){
-        sessionDescription.sdp = sessionDescription.sdp.substring(0, 
-                                  sessionDescription.sdp.indexOf('m=video')); 
-      }
+ //     if(this.get('voiceOnly')){
+ //       sessionDescription.sdp = sessionDescription.sdp.substring(0, 
+ //                                 sessionDescription.sdp.indexOf('m=video')); 
+ //     }
       this.pc.setLocalDescription(sessionDescription);
       sessionDescription.target = this.get('currentTarget');
       this.emitSignalingMessage(sessionDescription);
@@ -151,6 +151,8 @@ define([
         var pc_constraints = this.get('pc_constraints');
         var pc = new RTCPeerConnection(pc_config, pc_constraints);
         pc.onicecandidate = this._onIceCandidate;
+    //    pc.onicechange = this._onIceChange;
+        pc.ongatheringchange = this._onGatheringChange;
         console.log("Created RTCPeerConnnection with:\n" + 
                     "  config: \"" + JSON.stringify(pc_config) + "\";\n" + 
                     "  constraints: \"" + JSON.stringify(pc_constraints) + "\".");
@@ -163,6 +165,15 @@ define([
       pc.onaddstream = this._onRemoteStreamAdded;
       pc.onremovestream = this._onRemoteStreamRemoved;
       cb(pc);
+    },
+    _onGatheringChange: function(event){
+      console.log('on ice gathering change change');
+      console.log(event);
+      console.log(event.currentTarget.iceGatheringState);
+      if(event.currentTarget.iceGatheringState === "complete"){
+        console.log('Ice Gathering is complete, sending message');
+        this.emitSignalingMessage({target: this.get('currentTarget'), type: 'icefinished'});
+      }
     },
     _onIceCandidate: function(event){
       console.log('got another ice candidate');
