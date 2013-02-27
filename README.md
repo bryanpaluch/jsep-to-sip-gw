@@ -165,5 +165,8 @@ Then point your browser to
 http://localhost:3000/
 and put in the extension or telephone number you wish to reach.
 
+Architecture Diagram
+![Architecture Diagram](http://i.imgur.com/pyIAZ43.png)
+
 If there are any issues please let me know.
 	
