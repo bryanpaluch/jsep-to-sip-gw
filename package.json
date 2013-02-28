@@ -13,7 +13,7 @@
     "mockery": "~1.4.0"
   },
   "devDependencies": {
-    mocha: 'latest'
+    "mocha" : "latest"
     },
   "scripts": {
     "test": "mocha -R spec",
