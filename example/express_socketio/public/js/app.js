@@ -171,11 +171,11 @@ function doAnswer() {
 
 function setLocalAndSendMessage(sessionDescription) {
  //fix to make sdp without video 
-  if(voiceOnly){
-    console.log('voiceonly call striping video from sdp');
-    console.log(sessionDescription);
-  sessionDescription.sdp = sessionDescription.sdp.substring(0, sessionDescription.sdp.indexOf('m=video')); 
-  }
+//  if(voiceOnly){
+//    console.log('voiceonly call striping video from sdp');
+//    console.log(sessionDescription);
+//  sessionDescription.sdp = sessionDescription.sdp.substring(0, sessionDescription.sdp.indexOf('m=video')); 
+//  }
   pc.setLocalDescription(sessionDescription);
   console.log('local SDP');
   console.log(sessionDescription);

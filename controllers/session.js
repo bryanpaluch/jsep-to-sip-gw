@@ -2,7 +2,7 @@ var JSEPGateway = require('../lib/jsep-to-sip'),
     request = require('request');
 var logger = require('../lib/logwinston.js');
 var env = process.env.NODE_ENV || 'development';
-var config = require('../config')[env];
+var config = require('../config/conftool').getConf();
 var gw = new JSEPGateway(config);
 
 

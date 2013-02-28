@@ -4,7 +4,7 @@ var restify = require('restify'),
     logger = require('./lib/logwinston');
 
 var env = process.env.NODE_ENV || 'development';
-var config = require('./config')[env];
+var config = require('./config/conftool').getConf();
 var server = restify.createServer({
     name: 'jsep-to-sip-gateway',
       version: '0.0.1'
