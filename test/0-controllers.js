@@ -71,6 +71,18 @@ describe('Test Rest Interface', function(){
       }
     );
   });
+  it("Should respond with a 400 Bad Request if it receives a POST /session with missing data", function(done){
+    var data = {
+      callbackUrl: 'http://127.0.0.1:3000/session', 
+      fromDisplay: 'rtcgateway'
+    }
+    httpclient.post('/session',data,
+      function(err, req, res, data){
+        assert.equal(res.statusCode, 400);
+        done();
+      }
+    );
+  });
   it("Should respond with a 200 OK if it receives a PUT /session/:uuid", function(done){
     var data ={ type: 'candidate',
                 label: 0,
