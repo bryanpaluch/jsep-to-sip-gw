@@ -73,7 +73,6 @@ define([
       }
       //bind all functions to this!
       _.bindAll(this); 
-      
       //Fire get user Media as soon as the model is established.
       //trigger the ready event once this happens
       this._gUM();
