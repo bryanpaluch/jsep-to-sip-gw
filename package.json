@@ -12,7 +12,9 @@
     "winston": "latest",
     "mockery": "~1.4.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    mocha: 'latest'
+    },
   "scripts": {
     "test": "mocha -R spec",
     "start": "node server.js"
