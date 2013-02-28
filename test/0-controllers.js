@@ -41,6 +41,7 @@ describe('Test Rest Interface', function(){
     mockery.enable();
     mockery.registerMock('../lib/jsep-to-sip', JSEPGatewayMock);
     mockery.registerMock('../config/conftool', mockConfig);
+    mockery.registerMock('./config/conftool', mockConfig);
     mockery.warnOnReplace(false);
     mockery.warnOnUnregistered(false);
     require('../server.js');
