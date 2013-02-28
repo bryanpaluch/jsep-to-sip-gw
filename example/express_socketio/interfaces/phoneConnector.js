@@ -131,6 +131,7 @@ function doCandidate(data) {
   console.log('phoneConnector: new candidate for session ' + target);
   if(sessions[target]){
     if(sessions[target].active == true){
+      console.log(data);
       request.put({url: url + '/session/' + sessions[target].uuid,json: data}, function (err, res, data){
         if(err)
           return new Error(err);

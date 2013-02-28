@@ -20,6 +20,6 @@ server.post('/session', jsepSession.create);
 server.put('/session/:uuid', jsepSession.add);
 server.del('/session/:uuid', jsepSession.remove);
 
-server.listen(8080, function () {
+server.listen(config.httpport, function () {
     logger.log('info', 'JSEP to Sip Gateway ' + server.name + 'listening at '+ server.url);
 });

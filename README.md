@@ -1,6 +1,10 @@
 ##WebRTC JSEP to SIP Gateway
 
 ***
+
+[![Build
+Status](https://travis-ci.org/bryanpaluch/jsep-to-sip-gw.png?branch=master)](https://travis-ci.org/bryanpaluch/jsep-to-sip-gw.git)
+
 JSEP2SIP is a rest/sip gateway that allows webrtc clients to talk to sip clients. It sits between your webrtc applications and sip infrastructure. It can be used as a type of break out controller for when your webrtc applications are trying to reach clients that aren't connected to the web. 
 
 

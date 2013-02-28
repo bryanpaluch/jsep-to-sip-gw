@@ -7,24 +7,27 @@ var gw = new JSEPGateway(config);
 
 
 exports.create = function (req, res, next) {
+    console.log('received create');
     var callbackUrl = req.body.callbackUrl;
     var to = req.body.to;
     var from = req.body.from;
     var fromDisplay = req.body.fromDisplay;
     if(callbackUrl && to && from){
       var uuid = gw.AddJSEPSession({to: to, from: from, display: fromDisplay});
+      console.log('Got uuid' + uuid);
       if(gw.listeners(uuid).length === 0){
-      gw.on(uuid,function(event){
-        request({ method: 'POST',
-                  uri: callbackUrl + uuid,
-                  json: true,
-                  body: event}, 
-                  function(error, response, body){
-                    console.log(error);
-                    if(error) 
-                      return next(error); 
-                  });
-      });
+        console.log('subscribing to events for that uuid'); 
+        gw.on(uuid,function(event){
+          request({ method: 'POST',
+                    uri: callbackUrl + uuid,
+                    json: true,
+                    body: event}, 
+                    function(error, response, body){
+                      console.log(error);
+                      if(error) 
+                        return next(error); 
+                    });
+        });
       }else{
         return(new Error('event already subscribed'));
         logger.log('info', 'event already subscribed');
