@@ -13,7 +13,8 @@ exports.create = function (req, res, next) {
     var from = req.body.from;
     var fromDisplay = req.body.fromDisplay;
     if(callbackUrl && to && from){
-      var uuid = gw.AddJSEPSession({to: to, from: from, display: fromDisplay});
+      var data = {to: to, from: from, display: fromDisplay};
+      var uuid = gw.AddJSEPSession(data);
       console.log('Got uuid' + uuid);
       if(gw.listeners(uuid).length === 0){
         console.log('subscribing to events for that uuid'); 
@@ -43,6 +44,7 @@ exports.create = function (req, res, next) {
 
 exports.add = function(req, res, next){
     logger.log('info', 'request for session ' + req.params.uuid);
+    console.log(req.body); 
     gw.AddJSEPMessage(req.params.uuid,req.body);
     res.send(200);
       return next();
