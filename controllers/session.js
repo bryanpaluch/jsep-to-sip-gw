@@ -7,7 +7,6 @@ var gw = new JSEPGateway(config);
 
 
 exports.create = function (req, res, next) {
-    console.log('received create');
     var callbackUrl = req.body.callbackUrl;
     var to = req.body.to;
     var from = req.body.from;
@@ -15,16 +14,13 @@ exports.create = function (req, res, next) {
     if(callbackUrl && to && from){
       var data = {to: to, from: from, display: fromDisplay};
       var uuid = gw.AddJSEPSession(data);
-      console.log('Got uuid' + uuid);
       if(gw.listeners(uuid).length === 0){
-        console.log('subscribing to events for that uuid'); 
         gw.on(uuid,function(event){
           request({ method: 'POST',
                     uri: callbackUrl + uuid,
                     json: true,
                     body: event}, 
                     function(error, response, body){
-                      console.log(error);
                       if(error) 
                         return next(error); 
                     });
@@ -44,7 +40,6 @@ exports.create = function (req, res, next) {
 
 exports.add = function(req, res, next){
     logger.log('info', 'request for session ' + req.params.uuid);
-    console.log(req.body); 
     gw.AddJSEPMessage(req.params.uuid,req.body);
     res.send(200);
       return next();

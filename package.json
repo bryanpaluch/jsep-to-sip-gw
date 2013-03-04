@@ -1,6 +1,6 @@
 {
   "name": "jsep-to-sip-gateway",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "JSEP to Sip Rest gateway",
   "main": "server.js",
   "dependencies": {
