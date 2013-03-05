@@ -48,6 +48,7 @@ describe('Test Rest Interface', function(){
     done();
   });
   after(function(done){
+    mockery.deregisterAll();
     mockery.disable();
     done();
   });

@@ -1,15 +1,22 @@
 var assert = require('assert');
+var mockery = require('mockery');
 var EventEmitter = require('events').EventEmitter;
 var handler = new EventEmitter();
 var sip = require('sip');
 
-var conf = {
+var mockConfig ={ 
+  getConf : function(){
+    return {
       httpport: 8080,
       outboundproxy: '127.0.0.1:5080',
       domain: 'cabletownlabs',
       localHost: '127.0.0.1:5060',
       org: 'cabletownlabs'
     }
+  }
+}
+var conf = mockConfig.getConf();
+console.log(conf);
 function SipServer(opts){
   var handler = opts.eventHandler; 
   var onRequest = function(rq, remote){
@@ -37,17 +44,25 @@ function SipServer(opts){
   }
 }
 
-var JSEPGateway = require('../lib/jsep-to-sip');
 describe('jsep-to-sip', function(){
   var server;
   var uuid;
   var gw;
+  var JSEPGateway;
   before(function(done){
+    mockery.enable();
+    mockery.registerMock('../config/conftool', mockConfig);
+    mockery.registerMock('./config/conftool', mockConfig);
+    mockery.warnOnReplace(false);
+    mockery.warnOnUnregistered(false);
     server = new SipServer({eventHandler: handler, port: 5080});
+    JSEPGateway = require('../lib/jsep-to-sip');
     done();
   });
   after(function(done){
     server.stop();
+    mockery.deregisterAll(); 
+    mockery.disable();
     done();
   });
   it("Constructor should create a new gateway", function(done){
