@@ -26,8 +26,8 @@ exports.create = function (req, res, next) {
                     });
         });
       }else{
-        return(new Error('event already subscribed'));
         logger.log('info', 'event already subscribed');
+        return(new Error('event already subscribed'));
       }
       logger.log('info', 'jsep session created with uuid ' + uuid);
       res.send({uuid : uuid, session: 'active'});
@@ -36,19 +36,19 @@ exports.create = function (req, res, next) {
       res.send(400, new Error('missing body parameter'));
       return next();
     }
-}
+};
 
 exports.add = function(req, res, next){
     logger.log('info', 'request for session ' + req.params.uuid);
     gw.AddJSEPMessage(req.params.uuid,req.body);
     res.send(200);
       return next();
-}
+};
 
 exports.remove = function(req, res, next){
   logger.log('info', 'request to delete session ' + req.params.uuid);
   gw.EndJSEPSession(req.params.uuid);
   res.send(200);
     return next();
-}
+};
 

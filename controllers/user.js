@@ -26,7 +26,7 @@ exports.register = function(req, res, next){
     res.send(400, new Error('missing body parameter'));
     return next();
   }
-}
+};
 
 exports.deregister = function(req, res, next){
   var userid = req.body.id;
@@ -39,5 +39,5 @@ exports.deregister = function(req, res, next){
     res.send(400, new Error('missing body parameter'));
     return next();
   }
-}
+};
 
