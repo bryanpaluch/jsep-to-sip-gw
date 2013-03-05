@@ -12,7 +12,14 @@ exports.create = function (req, res, next) {
     var from = req.body.from;
     var fromDisplay = req.body.fromDisplay;
     if(callbackUrl && to && from){
-      var data = {to: to, from: from, display: fromDisplay};
+
+      var calldirection;
+        if(/^[0-9]+$/.test(to))
+          calldirection = 'sipbound';
+        else
+          calldirection = 'httphttp';
+
+      var data = {to: to, from: from, display: fromDisplay, calldirection: calldirection};
       var uuid = gw.AddJSEPSession(data);
       if(gw.listeners(uuid).length === 0){
         gw.on(uuid,function(event){
@@ -30,7 +37,7 @@ exports.create = function (req, res, next) {
         return(new Error('event already subscribed'));
       }
       logger.log('info', 'jsep session created with uuid ' + uuid);
-      res.send({uuid : uuid, session: 'active'});
+      res.send({uuid : uuid, session: 'active', calldirection: calldirection});
     }else{
       logger.log('error', 'missing body parameter', req.body);
       res.send(400, new Error('missing body parameter'));

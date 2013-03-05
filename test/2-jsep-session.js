@@ -56,7 +56,7 @@ describe('jsep-to-sip', function(){
     done();
   });
   it("AddJSEPSession() should create a new session, and return a UUID", function(done){
-    uuid = gw.AddJSEPSession({to: 'bryanpaluch', from: 'test', display: 'rtcwithme'});
+    uuid = gw.AddJSEPSession({to: '1111', from: 'test', display: 'rtcwithme', calldirection: 'sipbound'});
     assert.ok(uuid);
     assert.ok(gw.sessions);
     done();
