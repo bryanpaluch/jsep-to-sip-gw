@@ -1,34 +1,35 @@
 var restify = require('restify'),
     JSEPGateway = require('./lib/jsep-to-sip'),
     request = require('request'),
-    logger = require('./lib/logwinston');
-
+    logger = require('./lib/logwinston'),
+    SipServer = require('./lib/SipServer');
 var env = process.env.NODE_ENV || 'development';
 var config = require('./config/conftool').getConf();
-var server = restify.createServer({
+var httpserver = restify.createServer({
     name: 'jsep-to-sip-gateway',
       version: '0.0.1'
 });
 
+SipServer.start();
+
 require('./lib/registrar_db').connect();
 
-
-server.use(restify.acceptParser(server.acceptable));
-server.use(restify.queryParser());
-server.use(restify.bodyParser({mapParams: false}));
+httpserver.use(restify.acceptParser(httpserver.acceptable));
+httpserver.use(restify.queryParser());
+httpserver.use(restify.bodyParser({mapParams: false}));
 
 var jsepSession = require('./controllers/session');
 var user = require('./controllers/user');
 
 //inbound calls
-server.post('/session', jsepSession.create);
-server.put('/session/:uuid', jsepSession.add);
-server.del('/session/:uuid', jsepSession.remove);
+httpserver.post('/session', jsepSession.create);
+httpserver.put('/session/:uuid', jsepSession.add);
+httpserver.del('/session/:uuid', jsepSession.remove);
 
 
 //registration
-server.post('/registration', user.register);
+httpserver.post('/registration', user.register);
 
-server.listen(config.httpport, function () {
-    logger.log('info', 'JSEP to Sip Gateway ' + server.name + 'listening at '+ server.url);
+httpserver.listen(config.httpport, function () {
+    logger.log('info', 'JSEP to Sip Gateway ' + httpserver.name + 'listening at '+ httpserver.url);
 });
