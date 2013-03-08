@@ -19,7 +19,7 @@ exports.create = function (req, res, next) {
           calldirection = 'httphttp';
 
       var data = {to: to, from: from, display: fromDisplay, calldirection: calldirection, callbackUrl: callbackUrl};
-      var uuid = sc.AddSession(data);
+      var uuid = sc.addSession(data);
       logger.log('info', 'http session created with uuid ' + uuid);
       res.send({uuid : uuid, session: 'active', calldirection: calldirection, callbackUrl: callbackUrl});
     }else{
@@ -31,14 +31,14 @@ exports.create = function (req, res, next) {
 
 exports.add = function(req, res, next){
     logger.log('info', 'request for session ' + req.params.uuid);
-    sc.AddMessage(req.params.uuid,req.body);
+    sc.addMessage(req.params.uuid,req.body);
     res.send(200);
       return next();
 };
 
 exports.remove = function(req, res, next){
   logger.log('info', 'request to delete session ' + req.params.uuid);
-  gw.EndSession(req.params.uuid);
+  gw.endSession(req.params.uuid);
   res.send(200);
     return next();
 };
