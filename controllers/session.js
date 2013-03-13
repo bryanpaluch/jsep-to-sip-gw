@@ -38,7 +38,8 @@ exports.add = function(req, res, next){
 
 exports.remove = function(req, res, next){
   logger.log('info', 'request to delete session ' + req.params.uuid);
-  gw.endSession(req.params.uuid);
+  logger.log('info', sc); 
+  sc.endSession(req.params.uuid);
   res.send(200);
     return next();
 };

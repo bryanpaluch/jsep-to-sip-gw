@@ -18,32 +18,35 @@ var mockConfig = {
     }
   }
 }
-function JSEPGatewayMock()
+
+var SessionControllerMock =
 {
-    this.AddJSEPSession = function(options){
-      return '8e183130-81b5-11e2-8507-c93c53794ef2';
-    },
-    this.listeners = function(uuid){
-      return [];
-    },
-    this.on = function(){
-    }
-    this.AddJSEPMessage = function(options){
-      return;
-    },
-    this.EndJSEPSession = function(option){
-      return;
+    getInstance :  function(options){
+      return {
+        addSession : function(options){
+          return '8e183130-81b5-11e2-8507-c93c53794ef2';
+        },
+        addMessage : function(options){
+          return;
+        },
+        endSession : function(option){
+          return;
+        }
+      }
     }
 }
+
+
 
 describe('Test Rest Interface', function(){
   before(function(done){
     mockery.enable();
-    mockery.registerMock('../lib/jsep-to-sip', JSEPGatewayMock);
+    mockery.registerMock('../lib/SessionController', SessionControllerMock);
     mockery.registerMock('../config/conftool', mockConfig);
     mockery.registerMock('./config/conftool', mockConfig);
     mockery.warnOnReplace(false);
     mockery.warnOnUnregistered(false);
+    console.log("mocks registered");
     require('../server.js');
     done();
   });

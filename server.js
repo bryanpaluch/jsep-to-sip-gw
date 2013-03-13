@@ -1,5 +1,4 @@
 var restify = require('restify'),
-    JSEPGateway = require('./lib/jsep-to-sip'),
     request = require('request'),
     logger = require('./lib/logwinston'),
     SipServer = require('./lib/SipServer');
