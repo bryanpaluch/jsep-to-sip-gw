@@ -55,7 +55,7 @@ describe('Test HttpSession', function(){
     i1 = new HttpSession({role: 'caller', to: 'test@kabletown.com', 
                                            from: 'bryan@kabletown.com', display: 'rtcwithme', 
                                            callbackUrl: 'http://127.0.0.1:8081/session/', 
-                                           sess: '12382-238823-82388238-8234kjsdk-238234'});
+                                           sessid: '12382-238823-82388238-8234kjsdk-238234'});
     assert.equal(i1.role, 'caller');
     assert.equal(i1.http, true);
     assert.equal(i1.linkedSession, null);
@@ -65,7 +65,7 @@ describe('Test HttpSession', function(){
     i2 = new HttpSession({role: 'callee', to: 'test@kabletown.com', 
                                            from: 'bryan@kabletown.com', display: 'rtcwithme', 
                                            callbackUrl: 'http://127.0.0.1:8081/session/', 
-                                           sess: '123x22-238823-82388238-8234kjsdk-238234'});
+                                           sessid: '123x22-238823-82388238-8234kjsdk-238234'});
     i1.linkSession(i2);
     i2.linkSession(i1);
     assert.equal(i1.linkedSession, i2);

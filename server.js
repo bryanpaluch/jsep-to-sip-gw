@@ -17,17 +17,17 @@ httpserver.use(restify.acceptParser(httpserver.acceptable));
 httpserver.use(restify.queryParser());
 httpserver.use(restify.bodyParser({mapParams: false}));
 
-var jsepSession = require('./controllers/session');
-var user = require('./controllers/user');
+var call = require('./controllers/call');
+var reg = require('./controllers/reg');
 
 //inbound calls
-httpserver.post('/session', jsepSession.create);
-httpserver.put('/session/:uuid', jsepSession.add);
-httpserver.del('/session/:uuid', jsepSession.remove);
+httpserver.post('/session', call.create);
+httpserver.put('/session/:uuid', call.add);
+httpserver.del('/session/:uuid', call.remove);
 
 
 //registration
-httpserver.post('/registration', user.register);
+httpserver.post('/reg', reg.register);
 
 httpserver.listen(config.httpport, function () {
     logger.log('info', 'JSEP to Sip Gateway ' + httpserver.name + 'listening at '+ httpserver.url);
