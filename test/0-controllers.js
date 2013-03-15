@@ -50,6 +50,7 @@ describe('Test Rest Interface', function(){
     done();
   });
   after(function(done){
+    mockery.deregisterMock('../lib/SessionController');
     mockery.disable();
     done();
   });
