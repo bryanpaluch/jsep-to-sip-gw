@@ -16,10 +16,10 @@ var registrarDb;
 describe('Test Memory-RegistrarDB', function(){
   before(function(done){
     mockery.enable();
-    mockery.registerMock('../config/conftool', mockConfig);
-    mockery.registerMock('./config/conftool', mockConfig);
     mockery.warnOnReplace(false);
     mockery.warnOnUnregistered(false);
+    mockery.registerMock('../config/conftool', mockConfig);
+    mockery.registerMock('./config/conftool', mockConfig);
     require('../lib/registrar_db').connect();
     registrarDb = require('../lib/registrar_db').getDb();
     done();

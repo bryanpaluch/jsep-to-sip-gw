@@ -23,7 +23,6 @@ var httpserver = restify.createServer({
       version: '0.0.1'
 });
 var testController = function(req, res){
-  console.log(req.params.uuid); 
   handler.emit(req.params.uuid, req);
   res.send(200);
 }
@@ -32,10 +31,10 @@ var HttpSession;
 describe('Test HttpSession', function(){
   before(function(done){
     mockery.enable();
-    mockery.registerMock('../config/conftool', mockConfig);
-    mockery.registerMock('./config/conftool', mockConfig);
     mockery.warnOnReplace(false);
     mockery.warnOnUnregistered(false);
+    mockery.registerMock('../config/conftool', mockConfig);
+    mockery.registerMock('./config/conftool', mockConfig);
     //bootstrap libraries that require mocks
     HttpSession = require('../lib/HttpSession');
     registrarDb = require('../lib/registrar_db').getDb();
@@ -49,6 +48,7 @@ describe('Test HttpSession', function(){
   });
   after(function(done){
     mockery.disable();
+    httpserver.close();
     done();
   });
   it("HttpSession constructor", function(done){
@@ -105,12 +105,10 @@ describe('Test HttpSession', function(){
   });
   it("HttpSession initiateLeg client is registered, will send message to registered endpoints callbackurl", function(done){
     handler.once(i2.sessid, function(req){
-      console.log(req.body); 
       done();
     });
     var obj = {userid: 'test@kabletown.com', callbackUrl: 'http://127.0.0.1:8081/session/', ttl: 5000};
     registrarDb.save(obj, function(){
-      console.log("registered test@kabletown.com"); 
       i2.initiateLeg(); 
     });
   });

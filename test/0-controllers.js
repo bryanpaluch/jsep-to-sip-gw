@@ -46,7 +46,6 @@ describe('Test Rest Interface', function(){
     mockery.registerMock('./config/conftool', mockConfig);
     mockery.warnOnReplace(false);
     mockery.warnOnUnregistered(false);
-    console.log("mocks registered");
     require('../server.js');
     done();
   });
