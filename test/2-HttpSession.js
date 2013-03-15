@@ -3,7 +3,6 @@ var assert = require('assert');
 var restify = require('restify');
 var EventEmitter = new require('events').EventEmitter;
 var handler = new EventEmitter();
-var HttpSession = require('../lib/HttpSession');
 var mockConfig = {
   getConf: function(){
     return {
@@ -29,7 +28,7 @@ var testController = function(req, res){
   res.send(200);
 }
 var registrarDb;
-
+var HttpSession;
 describe('Test HttpSession', function(){
   before(function(done){
     mockery.enable();
@@ -37,6 +36,8 @@ describe('Test HttpSession', function(){
     mockery.registerMock('./config/conftool', mockConfig);
     mockery.warnOnReplace(false);
     mockery.warnOnUnregistered(false);
+    //bootstrap libraries that require mocks
+    HttpSession = require('../lib/HttpSession');
     registrarDb = require('../lib/registrar_db').getDb();
     httpserver.use(restify.acceptParser(httpserver.acceptable));
     httpserver.use(restify.queryParser());
