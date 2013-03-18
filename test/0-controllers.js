@@ -23,11 +23,11 @@ var SessionControllerMock =
 {
     getInstance :  function(options){
       return {
-        addSession : function(options){
+        createSessions : function(options){
           return '8e183130-81b5-11e2-8507-c93c53794ef2';
         },
-        addMessage : function(options){
-          return;
+        addMessage : function(sess, data, cb){
+          cb(true);
         },
         endSession : function(option){
           return;
@@ -54,7 +54,7 @@ describe('Test Rest Interface', function(){
     mockery.disable();
     done();
   });
-  it("Should respond 200 OK if it receives a post /session it should return a sipbound for number based to field", function(done){
+  it("Should respond 200 OK if it receives a post /session it should return a calldirection of sip for number based to field", function(done){
     var data = {
       callbackUrl: 'http://127.0.0.1:3000/session', 
       to: '2225553333',
@@ -69,13 +69,13 @@ describe('Test Rest Interface', function(){
           assert.equal(res.statusCode, 200);
           assert.ok(data.uuid)
           assert.equal(data.session,'active');
-          assert.equal(data.calldirection, 'sipbound');
+          assert.equal(data.calldirection, 'sip');
           done();
         }
       }
     );
   });
-  it("Should respond 200 OK if it receives a post /session it should return httphttp direction for string based to field", function(done){
+  it("Should respond 200 OK if it receives a post /session it should return http direction for string based to field", function(done){
     var data = {
       callbackUrl: 'http://127.0.0.1:3000/session', 
       to: 'bryan@cable.net',
@@ -90,7 +90,7 @@ describe('Test Rest Interface', function(){
           assert.equal(res.statusCode, 200);
           assert.ok(data.uuid)
           assert.equal(data.session,'active');
-          assert.equal(data.calldirection, 'httphttp');
+          assert.equal(data.calldirection, 'http');
           done();
         }
       }

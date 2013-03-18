@@ -14,12 +14,12 @@ exports.create = function (req, res, next) {
 
       var calldirection;
         if(/^[0-9]+$/.test(to))
-          calldirection = 'sipbound';
+          calldirection = 'sip';
         else
-          calldirection = 'httphttp';
+          calldirection = 'http';
 
       var data = {to: to, from: from, display: fromDisplay, calldirection: calldirection, callbackUrl: callbackUrl};
-      var uuid = sc.addSession(data);
+      var uuid = sc.createSessions(data);
       logger.log('info', 'http session created with uuid ' + uuid);
       res.send({uuid : uuid, session: 'active', calldirection: calldirection, callbackUrl: callbackUrl});
     }else{
@@ -31,9 +31,13 @@ exports.create = function (req, res, next) {
 
 exports.add = function(req, res, next){
     logger.log('info', 'request for session ' + req.params.uuid);
-    sc.addMessage(req.params.uuid,req.body);
-    res.send(200);
+    sc.addMessage(req.params.uuid,req.body, function(success){
+      if(success)
+        res.send(200);
+      else
+        res.send(404, 'Not Found');
       return next();
+    });
 };
 
 exports.remove = function(req, res, next){

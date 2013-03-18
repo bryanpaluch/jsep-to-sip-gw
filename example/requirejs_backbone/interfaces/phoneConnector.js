@@ -14,7 +14,7 @@ function PhoneConnector() {
     console.log(req.method + ' ' + req.path); 
     console.log(message); 
     if(message){
-      if(message.type == 'answer'){
+      if(message.type == 'answer' && !message.failure){
         console.log('got message of answer type');
         message['target'] = targets[req.params.uuid];
         self.emit('event',message);
@@ -35,6 +35,13 @@ function PhoneConnector() {
         message['target'] = target;
         message['remoteTarget'] = sessions[target].remoteTarget;
         self.emit('event',message);
+      }
+      else if(message.type == 'answer' && message.failure){
+        console.log('answer failed, stopping session' + req.params);
+        message['target'] = targets[req.params.uuid];
+        self.emit('event',message);
+        console.log(sessions);
+        delete sessions[req.params.uuid];
       }
       else
         {
@@ -135,13 +142,20 @@ function doCandidate(data) {
         if(err)
           return new Error(err);
         else{
-          console.log('sent candidate');
+          if(res.code == 200){
+            console.log('sent candidate');
+          }else{
+            console.log('got a different response, canceling session');
+            delete sessions[target];
+          }
         }
       });
     }else{
       console.log('phoneConnector: pushing candidate');
       sessions[target].candidates.push(data);
     }
+  }else{
+    console.log('Session not active, dropping');
   }
 }
 

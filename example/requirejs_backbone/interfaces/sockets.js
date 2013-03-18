@@ -1,6 +1,6 @@
-var phoneConnector = require("./phoneConnector"),
+var webrtcConnector = require("./phoneConnector"),
 util = require('util'),
-pc = phoneConnector.createConnector();
+pc = webrtcConnector.createConnector();
 
 module.exports = function(server) {
 	io = require('socket.io').listen(server);
@@ -9,6 +9,10 @@ module.exports = function(server) {
 	
 		socket.on('disconnect', function() {
 		
+    });
+    socket.on('reg_client_message', function(data){
+      data.from = this.id;
+      console.log(data);
     });
 		
     socket.on('rtc_client_message', function(data) {
@@ -25,9 +29,15 @@ module.exports = function(server) {
       }else{
 			        console.log(data);
               pc.send(data);
-        }
+      }
 		});
 	});
+
+  pc.on('regevent', function(data){
+    var target = data.target;
+    io.sockets.socket(target).emit('reg_server_message', data);
+    console.log('sent reg event to client ' + target);
+  });
   pc.on('event', function(data){
       var target = data.target;
       io.sockets.socket(target).emit('rtc_server_message', data);

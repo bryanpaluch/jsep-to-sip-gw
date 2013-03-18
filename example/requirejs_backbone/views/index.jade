@@ -2,23 +2,31 @@ extends layout
 
 block content
   header#header
-    .navbar.navbar-fixed-top
-      .navbar-inner(role='navigation')
-        .container
-          a.brand(href='/') JSEP to SIP Example 
-          .nav-collapse.collapse
+    .navbar.navbar-static-top.navbar-inner(role='navigation')
+      a.brand(href='/') JSEP to SIP Example 
+      .nav-collapse.collapse
   .container.main-content.wrapper
-    #caller.container.span12.boxed
-      #statusarea.row.center
-        h3 Put in the number you want to call and press call
-      #callform.row.center
-          label Phone Number
-          input#phoneNumber(type="text", placeholder="Enter Phone number here")
-          .help-block Example: 8565558185
-          button.call.btn(action="call", target="#phoneNumber") Call
-      #talkarea.row.center.fadedout
-        audio#remoteVideo(width="100%", autoplay="autoplay")
-      #selfarea.row.center.fadedout
-        audio#localVideo(width="100%", autoplay="autoplay")
+    .row-fluid 
+      #registration.container.span6.boxed
+        #regstatus.row.center
+          h3 Registration
+        #regform.row.center
+            label registration id 
+            input#regaddress(type="text", placeholder="Enter Email")
+            .help-block Example: bryan@kabletown.com
+            button.register.btn(action="register", target="#regaddress") Register
+
+      #caller.container.span6.boxed
+        #statusarea.row.center
+          h3 Phone or Email
+        #callform.row.center
+            label Phone or Email
+            input#address(type="text", placeholder="Enter Phone or Email")
+            .help-block Example: 8565558185 or bryan@kabletown.com
+            button.call.btn(action="call", target="#address") Call
+        #talkarea.row.center.fadedout
+          audio#remoteVideo(width="100%", autoplay="autoplay")
+        #selfarea.row.center.fadedout
+        audio#localVideo(width="100%", autoplay="autoplay", muted="true")
 
 

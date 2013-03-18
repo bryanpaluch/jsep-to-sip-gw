@@ -16,7 +16,7 @@ define([
     },
     startCall: function(id){
       var self = this;
-      var number = '2155544944';
+      var address = $('#address').val(); 
       this.model = new WebRTCSession({voiceOnly: true});
       // map the dispatcher inbound signaling for this webrtc session
       this.dispatcher.on('rtc_server_message', function(data){
@@ -39,7 +39,7 @@ define([
         console.log('session ready. calling');
         //if we were doing a video call we could use localStream to bind to a video
         //tag now, but this is a voice only call
-        self.model.call({number:number});
+        self.model.call({address:address});
       });
       //catch any webrtc related errors 
       this.model.bind('error', function(error){
@@ -49,10 +49,14 @@ define([
     renderState: function(model){
       var self = this;
       var state = this.model.get('state');
+      console.log(state);
       if(state === 'waiting'){
+        console.log(self.model); 
+        var target = self.model.attributes.currentTarget;
+        console.log('Calling ' + target); 
         $("#callform").hide();
         $("#statusarea").animate({opacity:0},600, function(){
-          $("#statusarea").html("<h3>Calling " + self.model.get('currentTarget') + "</h3>");
+          $("#statusarea").html("<h3>Calling " + target + "</h3>");
           $("#statusarea").animate({opacity:1},300);
         });
       }

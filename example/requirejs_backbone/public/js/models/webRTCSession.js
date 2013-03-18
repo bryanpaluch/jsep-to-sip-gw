@@ -104,8 +104,8 @@ define([
     },
     call:function(callerInfo){
       var self = this;
+      this.set('currentTarget', callerInfo.address);
       this.set('state', 'waiting'); 
-      this.set('currentTarget', callerInfo.number);
       var mc = self.get('mediaConstraints');
       console.log(mc);
       this._createPeerConnection(function(pc){
@@ -117,9 +117,13 @@ define([
     },
     onSignalingMessage: function(msg){
       console.log('webrtcsession got a signaling message'); 
-      if (msg.type === 'answer' && this.get('started')) {
+      if (msg.type === 'answer' && !msg.failure && this.get('started')) {
         console.log('got answer setting remote description');
         this.pc.setRemoteDescription(new RTCSessionDescription(msg));
+      } 
+      else if (msg.type === 'answer' && msg.failure && this.get('started')) {
+        console.log('answer denied stopping peerconnection');
+        this._onRemoteHangup();
       } 
       else if (msg.type === 'candidate' && this.get('started')) {
         console.log('got a candidate adding it');
@@ -209,6 +213,7 @@ define([
       this.trigger('remoteStreamRemoved');
     },
     _onRemoteHangup: function(event){
+      this.pc.close(); 
       this.set('state', 'disconnected');
       this.trigger('remoteHangup'); 
     },
