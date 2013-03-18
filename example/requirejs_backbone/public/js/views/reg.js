@@ -7,7 +7,7 @@ define([
   var RegView = Backbone.View.extend({
     el: $('#registration'),
     events: {
-      "click .reg" : 'register'
+      "click .register" : 'register'
     },
     initialize: function(){
       var self= this;

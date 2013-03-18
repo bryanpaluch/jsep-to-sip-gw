@@ -12,7 +12,7 @@ module.exports = function(server) {
     });
     socket.on('reg_client_message', function(data){
       data.from = this.id;
-      console.log(data);
+      pc.reg(data);
     });
 		
     socket.on('rtc_client_message', function(data) {

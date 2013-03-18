@@ -19,6 +19,14 @@ define([
         console.log('sending message ' + JSON.stringify(data));
         socket.emit('rtc_client_message', data);
       });
+      socket.on('reg_server_message', function(data){
+        console.log('received message ' + JSON.stringify(data));
+        dispatcher.trigger('reg_server_message', data);
+      });
+      dispatcher.on('reg_client_message', function(data){
+        console.log('sending message ' + JSON.stringify(data));
+        socket.emit('reg_client_message', data);
+      });
     });
   }
   return {connect:connect};

@@ -13,9 +13,9 @@ define([
     },
     register:function(regInfo){
       var self = this;
-      this.set('alias', callerInfo.address);
-      this.set('state', 'unregistered'); 
-      this.emitSignalingMessage(sessionDescription);
+      this.set('alias', regInfo.address);
+      this.set('state', 'registering'); 
+      this.emitSignalingMessage({address: regInfo.address});
     },
     onSignalingMessage: function(msg){
       console.log('webrtcsession got a signaling message'); 

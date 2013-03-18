@@ -58,6 +58,9 @@ function PhoneConnector() {
 } 
 
 util.inherits(PhoneConnector, EventEmitter);
+PhoneConnector.prototype.reg = function(data){
+  
+}
 
 PhoneConnector.prototype.send = function(data){
   	  switch (data.type) {
