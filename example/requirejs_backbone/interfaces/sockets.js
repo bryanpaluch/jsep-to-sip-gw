@@ -11,6 +11,7 @@ module.exports = function(server) {
 		
     });
     socket.on('reg_client_message', function(data){
+      console.log('client attempting to register ' + data.address + ' ' + this.id);
       data.from = this.id;
       pc.reg(data);
     });

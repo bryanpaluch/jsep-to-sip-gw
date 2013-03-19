@@ -9,7 +9,7 @@ var registrarDb = require('../lib/registrar_db').getDb();
 //****************************************
 
 exports.register = function(req, res, next){
-  var userid = req.body.id;
+  var userid = req.body.address;
   var callbackUrl = req.body.callbackUrl;
   var ttl = req.body.ttl;
   if(userid && callbackUrl && ttl){

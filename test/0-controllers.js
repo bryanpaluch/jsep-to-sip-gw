@@ -134,4 +134,17 @@ describe('Test Rest Interface', function(){
       }
     );
   });
+  it("Should 200OK POST /reg with correct data", function(done){
+    var data = {
+      address: 'bryan@kabletown.com',
+      callbackUrl: 'http://127.0.0.1:3000/session', 
+      ttl: 60 
+    }
+    httpclient.post('/session',data,
+      function(err, req, res, data){
+        assert.equal(res.statusCode, 200);
+        done();
+      }
+    );
+  });
 });
