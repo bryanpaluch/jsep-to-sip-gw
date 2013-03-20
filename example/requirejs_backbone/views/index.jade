@@ -12,7 +12,7 @@ block content
           h3 Registration
         #regform.row.center
             label registration id 
-            input#regaddress(type="text", placeholder="Enter Email")
+            input.stored#regaddress(name="regaddress", type="text", placeholder="Enter Email")
             .help-block Example: bryan@kabletown.com
             button.register.btn(action="register", target="#regaddress") Register
 
@@ -21,12 +21,14 @@ block content
           h3 Phone or Email
         #callform.row.center
             label Phone or Email
-            input#address(type="text", placeholder="Enter Phone or Email")
+            input.stored#address(name="address",  type="text", placeholder="Enter Phone or Email")
             .help-block Example: 8565558185 or bryan@kabletown.com
             button.call.btn(action="call", target="#address") Call
+        #answerform.row.center.hide
+            button.answer.btn(action="answer", target="#address") Answer 
         #talkarea.row.center.fadedout
-          audio#remoteVideo(width="100%", autoplay="autoplay")
+          video#remoteVideo(width="100%", autoplay="autoplay")
         #selfarea.row.center.fadedout
-        audio#localVideo(width="100%", autoplay="autoplay", muted="true")
+          video#localVideo(width="100%", autoplay="autoplay", muted="true")
 
 

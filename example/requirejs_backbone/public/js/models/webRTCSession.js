@@ -29,7 +29,6 @@ define([
 
     // The RTCPeerConnection object.
     RTCPeerConnection = webkitRTCPeerConnection;
-    
     // Get UserMedia (only difference is the prefix).
     // Code from Adam Barth.
     getUserMedia = navigator.webkitGetUserMedia.bind(navigator);
@@ -75,7 +74,6 @@ define([
       _.bindAll(this); 
       //Fire get user Media as soon as the model is established.
       //trigger the ready event once this happens
-      this._gUM();
     },
     attachMediaStream: attachMediaStream,
     _gUM: function(){
@@ -104,20 +102,42 @@ define([
     },
     call:function(callerInfo){
       var self = this;
-      this.set('currentTarget', callerInfo.address);
-      this.set('state', 'waiting'); 
-      var mc = self.get('mediaConstraints');
-      console.log(mc);
-      this._createPeerConnection(function(pc){
-        self.pc = pc;
-        self.pc.addStream(self.get('localStream'));
-        pc.createOffer(self._setLocalAndSendMessage, null, self.get('mediaConstraints'));
+      this.once('ready', function(){
+        self.set('currentTarget', callerInfo.address);
+        self.set('state', 'waiting'); 
+        var mc = self.get('mediaConstraints');
+        console.log(mc);
+        self._createPeerConnection(function(pc){
+          self.pc = pc;
+          self.pc.addStream(self.get('localStream'));
+          pc.createOffer(self._setLocalAndSendMessage, null, self.get('mediaConstraints'));
+        });
+        self.set('started', true);
       });
-      this.set('started', true);
+      this._gUM();
+    },
+    answer:function(){
+      this.once('ready', function(){
+        self._createPeerConnection(function(pc){
+          self.pc = pc;
+          self.pc.addStream(self.get('localStream'));
+          self.pc.setRemoteDescription(new RTCSessionDescription(self.get('offerSdp')));
+          self.pc.createAnswer(self._setLocalAndSendMessage, null, self.get('mediaConstraints'));
+        });
+        self.set('started', true);
+      });
+      this._gUM();
+
     },
     onSignalingMessage: function(msg){
       console.log('webrtcsession got a signaling message'); 
-      if (msg.type === 'answer' && !msg.failure && this.get('started')) {
+      if(msg.type === 'offer'){
+        console.log('got new offer, changing state and popping request');
+        this.set('currentTarget', msg.fromAlias);
+        this.set('state', 'incomingCall');
+        this.set('offerSdp', msg);
+      }
+      else if (msg.type === 'answer' && !msg.failure && this.get('started')) {
         console.log('got answer setting remote description');
         this.pc.setRemoteDescription(new RTCSessionDescription(msg));
       } 
@@ -170,7 +190,7 @@ define([
       cb(pc);
     },
     _onGatheringChange: function(event){
-      console.log('on ice gathering change change');
+      console.log('peerconnection ice gathering change change');
       console.log(event);
       console.log(event.currentTarget.iceGatheringState);
       if(event.currentTarget.iceGatheringState === "complete"){
@@ -179,7 +199,7 @@ define([
       }
     },
     _onIceCandidate: function(event){
-      console.log('got another ice candidate');
+      console.log('peerConnection has generated an ice candidate');
       console.log(event);
       if(event.candidate){
         this.emitSignalingMessage({target: this.get('currentTarget'), 

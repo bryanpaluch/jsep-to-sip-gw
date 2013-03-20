@@ -7,17 +7,14 @@ define([
   var CallView = Backbone.View.extend({
     el: $('#caller'),
     events: {
-      "click .call" : 'startCall'
+      "click .call" : 'startCall',
+      "click .answer" : 'answerCall'
     },
     initialize: function(){
       var self= this;
       this.dispatcher = this.options.dispatcher;
       console.log(this.dispatcher);
-    },
-    startCall: function(id){
-      var self = this;
-      var address = $('#address').val(); 
-      this.model = new WebRTCSession({voiceOnly: true});
+      this.model = new WebRTCSession({voiceOnly: false});
       // map the dispatcher inbound signaling for this webrtc session
       this.dispatcher.on('rtc_server_message', function(data){
                           self.model.onSignalingMessage(data)});
@@ -34,17 +31,18 @@ define([
       this.model.bind('localStreamAdded', function(model){
         self.renderLocalStream(model);
       }, this);
-      //Wait for the model to be ready
-      this.model.bind('ready', function(){ 
-        console.log('session ready. calling');
-        //if we were doing a video call we could use localStream to bind to a video
-        //tag now, but this is a voice only call
-        self.model.call({address:address});
-      });
+    },
+    startCall: function(id){
+      var self = this;
+      var address = $('#address').val(); 
       //catch any webrtc related errors 
       this.model.bind('error', function(error){
         console.log('ERROR!!!! something went wrong with the webrtc session' + error);
       });
+      self.model.call({address:address});
+    },
+    answerCall: function(){
+      this.model.answer();
     },
     renderState: function(model){
       var self = this;
@@ -55,27 +53,38 @@ define([
         var target = self.model.attributes.currentTarget;
         console.log('Calling ' + target); 
         $("#callform").hide();
+        $("#answerfrom").hide();
         $("#statusarea").animate({opacity:0},600, function(){
           $("#statusarea").html("<h3>Calling " + target + "</h3>");
           $("#statusarea").animate({opacity:1},300);
         });
       }
       else if(state === 'connected'){
+        $("#answerfrom").hide();
         $("#statusarea").animate({opacity:0},600, function(){
           $("#statusarea").html("<h1>Voice Only Call with " + self.model.get('currentTarget')+ "</h1>");
           $("#statusarea").animate({opacity:1},300);
         });
       }else if(state === 'disconnected'){
+        $("#answerfrom").hide();
         $("#statusarea").animate({opacity: 1},600, function(){
           $("#statusarea").html("<h3>type in a phone number to start </h1>");
           $("#callform").show();
           $("#statusarea").show();
         });
-        this.model = undefined; 
+        //Reset Model
+      }else if(state === 'incomingCall'){
+        var target = self.model.attributes.currentTarget;
+        $("#callform").hide();
+        $("#statusarea").animate({opacity:0},600, function(){
+          $("#answerform").show();
+          $("#statusarea").html("<h3>Call From " + target + "</h3>");
+          $("#statusarea").animate({opacity:1},300);
+        });
       }
     },
     renderRemoteStream: function(){
-      var audioElement = document.createElement('audio');
+      var audioElement = document.createElement('video');
       audioElement.setAttribute('autoplay', 'autoplay');
       this.$el.append(audioElement);
       this.model.attachMediaStream(audioElement, this.model.get('remoteStream'));
@@ -85,6 +94,7 @@ define([
     renderLocalStream: function(){
       var audioElement = document.createElement('audio');
       audioElement.setAttribute('autoplay', 'autoplay');
+      audioElement.setAttribute('mute', 'true');
       this.$el.append(audioElement);
       this.model.attachMediaStream(audioElement, this.model.get('localStream'));
       console.log('added local stream');

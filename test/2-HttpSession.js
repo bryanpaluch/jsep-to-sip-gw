@@ -67,7 +67,9 @@ describe('Test HttpSession', function(){
                                            callbackUrl: 'http://127.0.0.1:8081/session/', 
                                            sessid: '123x22-238823-82388238-8234kjsdk-238234'});
     i1.linkSession(i2);
+    i1.activate();
     i2.linkSession(i1);
+    i2.activate();
     assert.equal(i1.linkedSession, i2);
     done();
   });

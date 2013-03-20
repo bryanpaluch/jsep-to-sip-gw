@@ -140,9 +140,23 @@ describe('Test Rest Interface', function(){
       callbackUrl: 'http://127.0.0.1:3000/session', 
       ttl: 60 
     }
-    httpclient.post('/session',data,
+    httpclient.post('/reg',data,
       function(err, req, res, data){
+        console.log(res.body); 
         assert.equal(res.statusCode, 200);
+        done();
+      }
+    );
+  });
+  it("Should 400 Bad Request POST /reg with incorrect data", function(done){
+    var data = {
+      callbackUrl: 'http://127.0.0.1:3000/session', 
+      ttl: 60 
+    }
+    httpclient.post('/reg',data,
+      function(err, req, res, data){
+        console.log(res.body); 
+        assert.equal(res.statusCode, 400);
         done();
       }
     );

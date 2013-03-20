@@ -12,11 +12,14 @@ exports.register = function(req, res, next){
   var userid = req.body.address;
   var callbackUrl = req.body.callbackUrl;
   var ttl = req.body.ttl;
+  logger.log('info', 'Registration request');
   if(userid && callbackUrl && ttl){
-    registarDb.save({userid: userid,callbackUrl: callbackUrl, ttl: ttl}, function(err){
+  logger.log('info', 'Registering ' + userid + '@' + callbackUrl + ' for ' + ttl + ' ms');
+    registrarDb.save({userid: userid,callbackUrl: callbackUrl, ttl: ttl}, function(err){
       if(err){
         return next(err);
       }else{
+        logger.log('info', 'Registered ' + userid + '@' + callbackUrl + ' for ' + ttl + ' ms');
         res.send(200);
         return next();
       }

@@ -3,8 +3,9 @@ define([
   'views/call',
   'views/reg',
   'backbone',
-  'underscore'
-],function(Connection, CallView,RegView, Backbone, _){
+  'underscore',
+  'localStorageHook'
+],function(Connection, CallView,RegView, Backbone, _, LocalStorageHook){
   var init = function(){
     var dispatcher = _.clone(Backbone.Events);
     //Pass the callView a new WebRTCConnection for 1:1 calling, WebRTCConnection needs to be plumbed
@@ -18,6 +19,7 @@ define([
     dispatcher.on('disconnect', function(){
       console.log('disconnected from socket.io');
     });
+    LocalStorageHook.hook();
   };
 return {init:init};
 });
