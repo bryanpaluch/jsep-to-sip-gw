@@ -8,7 +8,8 @@ define([
     el: $('#caller'),
     events: {
       "click .call" : 'startCall',
-      "click .answer" : 'answerCall'
+      "click .answer" : 'answerCall',
+      "click .endcall" : 'endCall'
     },
     initialize: function(){
       var self= this;
@@ -42,7 +43,12 @@ define([
       self.model.call({address:address});
     },
     answerCall: function(){
+      $("#answerform").hide();
       this.model.answer();
+    },
+    endCall : function(){
+      $('#controlform').hide();
+      this.model.hangup();
     },
     renderState: function(model){
       var self = this;
@@ -55,6 +61,7 @@ define([
         $("#callform").hide();
         $("#answerfrom").hide();
         $("#statusarea").animate({opacity:0},600, function(){
+          $("#controlform").show();
           $("#statusarea").html("<h3>Calling " + target + "</h3>");
           $("#statusarea").animate({opacity:1},300);
         });
@@ -62,14 +69,19 @@ define([
       else if(state === 'connected'){
         $("#answerfrom").hide();
         $("#statusarea").animate({opacity:0},600, function(){
-          $("#statusarea").html("<h1>Voice Only Call with " + self.model.get('currentTarget')+ "</h1>");
+          $("#controlform").show();
+          $("#statusarea").html("<h1>Call with " + self.model.get('currentTarget')+ "</h1>");
           $("#statusarea").animate({opacity:1},300);
+          $("#talkarea").show();
         });
       }else if(state === 'disconnected'){
         $("#answerfrom").hide();
+        $("#remoteVideo").animate({opacity:0},300);
         $("#statusarea").animate({opacity: 1},600, function(){
+          $("#controlform").hide();
           $("#statusarea").html("<h3>type in a phone number to start </h1>");
           $("#callform").show();
+          $("#talkarea").hide();
           $("#statusarea").show();
         });
         //Reset Model
@@ -81,24 +93,29 @@ define([
           $("#statusarea").html("<h3>Call From " + target + "</h3>");
           $("#statusarea").animate({opacity:1},300);
         });
+      //Both users have acknowledged that they want to talk just waiting for ice checks to finish
+      }else if(state === 'connecting'){
+          var target = self.model.attributes.currentTarget;
+          $("#controlform").show();
+          $("#statusarea").html("<h3>Connecting to " + target + " please wait</h3>");
       }
     },
     renderRemoteStream: function(){
-      var audioElement = document.createElement('video');
-      audioElement.setAttribute('autoplay', 'autoplay');
-      this.$el.append(audioElement);
-      this.model.attachMediaStream(audioElement, this.model.get('remoteStream'));
+   //   var videoElement = document.createElement('video');
+   //   videoElement.setAttribute('autoplay', 'autoplay');
+   //   this.$el.append(videoElement);
+      var videoElement = $("#remoteVideo")[0];
+      console.log(videoElement); 
+      this.model.attachRemoteMediaStream(videoElement, this.model.get('remoteStream'));
       console.log('added remote stream');
-      console.log(this.model.toJSON());
     },
     renderLocalStream: function(){
       var audioElement = document.createElement('audio');
       audioElement.setAttribute('autoplay', 'autoplay');
       audioElement.setAttribute('mute', 'true');
       this.$el.append(audioElement);
-      this.model.attachMediaStream(audioElement, this.model.get('localStream'));
+      this.model.attachLocalMediaStream(audioElement, this.model.get('localStream'));
       console.log('added local stream');
-      console.log(this.model.toJSON());
     }
   });
   return CallView;

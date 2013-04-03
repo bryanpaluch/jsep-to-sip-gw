@@ -43,19 +43,19 @@ define([
         console.log('registering ' + target); 
         $("#regform").hide();
         $("#regstatus").animate({opacity:0},600, function(){
-          $("#regstatus").html("<h3>Registering " + target + "</h3>");
+          $("#regstatus").html("Registering " + target ) ;
           $("#regstatus").animate({opacity:1},300);
         });
       }
       else if(state === 'registered'){
         var target = self.model.get('alias');
         $("#regstatus").animate({opacity:0},600, function(){
-          $("#regstatus").html("<h1>Registered " + target + "</h1>");
+          $("#regstatus").html("Registered " + target );
           $("#regstatus").animate({opacity:1},300);
         });
       }else if(state === 'unregistered'){
         $("#regstatus").animate({opacity: 1},600, function(){
-          $("#regstatus").html("<h3>Registration </h1>");
+          $("#regstatus").html("");
           $("#regform").show();
           $("#regstatus").show();
         });

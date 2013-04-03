@@ -4,19 +4,16 @@ block content
   header#header
     .navbar.navbar-static-top.navbar-inner(role='navigation')
       a.brand(href='/') JSEP to SIP Example 
-      .nav-collapse.collapse
+      #registration 
+        #regform.navbar-form.pull-right
+          input.span2.stored#regaddress(name="regaddress", type="text", placeholder="Enter Email")
+          button.register.btn(action="register", target="#regaddress") Register
+        #regstatus.pull-right.span2
+
+
   .container.main-content.wrapper
     .row-fluid 
-      #registration.container.span6.boxed
-        #regstatus.row.center
-          h3 Registration
-        #regform.row.center
-            label registration id 
-            input.stored#regaddress(name="regaddress", type="text", placeholder="Enter Email")
-            .help-block Example: bryan@kabletown.com
-            button.register.btn(action="register", target="#regaddress") Register
-
-      #caller.container.span6.boxed
+      #caller.container.span12.boxed
         #statusarea.row.center
           h3 Phone or Email
         #callform.row.center
@@ -26,7 +23,9 @@ block content
             button.call.btn(action="call", target="#address") Call
         #answerform.row.center.hide
             button.answer.btn(action="answer", target="#address") Answer 
-        #talkarea.row.center.fadedout
+        #controlform.row.center.hide
+            button.endcall.btn(action="end", target="#address") End Call
+        #talkarea.row.center.hide
           video#remoteVideo(width="100%", autoplay="autoplay")
         #selfarea.row.center.fadedout
           video#localVideo(width="100%", autoplay="autoplay", muted="true")

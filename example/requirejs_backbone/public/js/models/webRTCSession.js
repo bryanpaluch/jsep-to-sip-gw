@@ -75,7 +75,11 @@ define([
       //Fire get user Media as soon as the model is established.
       //trigger the ready event once this happens
     },
-    attachMediaStream: attachMediaStream,
+    attachRemoteMediaStream: function(videoElement, remoteStream){
+      this.set('remoteVideoTag', videoElement);
+      attachMediaStream(videoElement, remoteStream);
+    },
+    attachLocalMediaStream: attachMediaStream,
     _gUM: function(){
       self = this;
       var constraints = {"mandatory": {}, "optional": []}; 
@@ -98,6 +102,7 @@ define([
       this.trigger('ready'); 
     },
     _onUserMediaError:function(error){
+      console.log("User media error");
       this.trigger('error', "Failed to get access to local media. Error code was " + error.code);
     },
     call:function(callerInfo){
@@ -124,10 +129,15 @@ define([
           self.pc.setRemoteDescription(new RTCSessionDescription(self.get('offerSdp')));
           self.pc.createAnswer(self._setLocalAndSendMessage, null, self.get('mediaConstraints'));
         });
+        self.set('state', 'connecting');
         self.set('started', true);
       });
       this._gUM();
 
+    },
+    hangup: function(){
+      this.emitSignalingMessage({target: this.get('currentTarget'), type: 'bye'});
+      this._onRemoteHangup();
     },
     onSignalingMessage: function(msg){
       console.log('webrtcsession got a signaling message'); 
@@ -139,14 +149,15 @@ define([
       }
       else if (msg.type === 'answer' && !msg.failure && this.get('started')) {
         console.log('got answer setting remote description');
+        self.set('state', 'connecting');
         this.pc.setRemoteDescription(new RTCSessionDescription(msg));
       } 
       else if (msg.type === 'answer' && msg.failure && this.get('started')) {
         console.log('answer denied stopping peerconnection');
         this._onRemoteHangup();
       } 
-      else if (msg.type === 'candidate' && this.get('started')) {
-        console.log('got a candidate adding it');
+      else if (msg.type === 'candidate' && this.get('started') && !msg.last) {
+        console.log('got a from the remote side, adding it ' + msg.candidate);
         var candidate = new RTCIceCandidate({sdpMLineIndex:msg.label,
                                              candidate:msg.candidate});
         this.pc.addIceCandidate(candidate);
@@ -159,10 +170,6 @@ define([
       if(this.get('setOpus')){
         sessionDescription.sdp = this._preferOpus(sessionDescription.sdp);
       }
- //     if(this.get('voiceOnly')){
- //       sessionDescription.sdp = sessionDescription.sdp.substring(0, 
- //                                 sessionDescription.sdp.indexOf('m=video')); 
- //     }
       this.pc.setLocalDescription(sessionDescription);
       sessionDescription.target = this.get('currentTarget');
       this.emitSignalingMessage(sessionDescription);
@@ -175,7 +182,7 @@ define([
         var pc = new RTCPeerConnection(pc_config, pc_constraints);
         pc.onicecandidate = this._onIceCandidate;
     //    pc.onicechange = this._onIceChange;
-        pc.ongatheringchange = this._onGatheringChange;
+     //   pc.ongatheringchange = this._onGatheringChange;
         console.log("Created RTCPeerConnnection with:\n" + 
                     "  config: \"" + JSON.stringify(pc_config) + "\";\n" + 
                     "  constraints: \"" + JSON.stringify(pc_constraints) + "\".");
@@ -189,19 +196,9 @@ define([
       pc.onremovestream = this._onRemoteStreamRemoved;
       cb(pc);
     },
-    _onGatheringChange: function(event){
-      console.log('peerconnection ice gathering change change');
-      console.log(event);
-      console.log(event.currentTarget.iceGatheringState);
-      if(event.currentTarget.iceGatheringState === "complete"){
-        console.log('Ice Gathering is complete, sending message');
-        this.emitSignalingMessage({target: this.get('currentTarget'), type: 'icefinished'});
-      }
-    },
     _onIceCandidate: function(event){
-      console.log('peerConnection has generated an ice candidate');
-      console.log(event);
       if(event.candidate){
+        console.log('sending candidate');
         this.emitSignalingMessage({target: this.get('currentTarget'), 
                                   type: 'candidate',
                                   label: event.candidate.sdpMLineIndex,
@@ -209,8 +206,11 @@ define([
                                   candidate: event.candidate.candidate
                                   });
         } else {
-        this.emitSignalingMessage({target: this.get('currentTarget'), type: 'icefinished'});
-        console.log('end of candidates');
+        if(!this.get('iceFinished')){ 
+          console.log('sending ice'); 
+          this.emitSignalingMessage({target: this.get('currentTarget'), type: 'icefinished'});
+          this.set('iceFinished', true);
+        }
         }
     },
     _onSessionConnection: function(message){
@@ -240,7 +240,6 @@ define([
     _waitForRemoteVideo: function(){
       var remoteStream = this.get('remoteStream');
       var videoTracks = remoteStream.getVideoTracks();
-      console.log(videoTracks);
       if(  videoTracks.length === 0
         || this.get('remoteVideoTag').currentTime > 0
         || this.get('voiceOnly'))
