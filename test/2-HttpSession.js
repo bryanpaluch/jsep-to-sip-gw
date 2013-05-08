@@ -58,7 +58,7 @@ describe('Test HttpSession', function(){
                                            sessid: '12382-238823-82388238-8234kjsdk-238234'});
     assert.equal(i1.role, 'caller');
     assert.equal(i1.http, true);
-    assert.equal(i1.linkedSession, null);
+    assert.equal(i1.linker, null);
     done();
   });
   it("HttpSession linkSession", function(done){
@@ -70,7 +70,7 @@ describe('Test HttpSession', function(){
     i1.activate();
     i2.linkSession(i1);
     i2.activate();
-    assert.equal(i1.linkedSession, i2);
+    assert.equal(i1.linker, i2);
     done();
   });
   it("HttpSession messageLinkedSession", function(done){

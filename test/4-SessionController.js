@@ -84,8 +84,8 @@ describe('Test SessionController', function(){
     sc._listen(i1);
     sc._listen(i2);
     sc._linkSessions(i1, i2);
-    assert.equal(i1.linkedSession.sessid, i2.sessid);
-    assert.equal(i2.linkedSession.sessid, i1.sessid);
+    assert.equal(i1.linker.sessid, i2.sessid);
+    assert.equal(i2.linker.sessid, i1.sessid);
     i1.emit('deleteMe');
     i2.emit('deleteMe');
     done();
@@ -99,7 +99,7 @@ describe('Test SessionController', function(){
                        callbackUrl: 'http://127.0.0.1:8081/session/'});
     assert.ok(sc.sessions[uuid]);
     assert.ok(sc.sessions[uuid].http);
-    var linkeduuid = sc.sessions[uuid].linkedSession.sessid;
+    var linkeduuid = sc.sessions[uuid].linker.sessid;
     assert.ok(sc.sessions[linkeduuid]);
     assert.ok(sc.sessions[linkeduuid].http);
     done();
