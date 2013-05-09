@@ -9,7 +9,10 @@ module.exports = {
     //ip and host of the machine the this is running on
     localHost: '10.255.132.197:5060',
     //your organizations name
-    org: 'ComcastLabs'
+    org: 'ComcastLabs',
+    plugins: [
+      { name: 'basic', run: true, config : {}}
+    ]
 	},
 	test: {
 

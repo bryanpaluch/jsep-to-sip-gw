@@ -61,16 +61,15 @@ describe('Test HttpSession', function(){
     assert.equal(i1.linker, null);
     done();
   });
-  it("HttpSession linkSession", function(done){
+  it("HttpSession link", function(done){
     i2 = new HttpSession({role: 'callee', to: 'test@kabletown.com', 
                                            from: 'bryan@kabletown.com', display: 'rtcwithme', 
                                            callbackUrl: 'http://127.0.0.1:8081/session/', 
                                            sessid: '123x22-238823-82388238-8234kjsdk-238234'});
-    i1.linkSession(i2);
+    i1.link(i2.messageFromLinked);
     i1.activate();
-    i2.linkSession(i1);
+    i2.link(i1.messageFromLinked);
     i2.activate();
-    assert.equal(i1.linker, i2);
     done();
   });
   it("HttpSession messageLinkedSession", function(done){
@@ -79,6 +78,7 @@ describe('Test HttpSession', function(){
       assert.ok(req.params.uuid, i1.sessid);
       done();
     });
+    console.log('sending message');
     i1.messageLinkedSession({foo: 'bar'}); 
   });
   it("HttpSession messageEndpoint", function(done){
