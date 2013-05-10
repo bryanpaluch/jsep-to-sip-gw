@@ -32,3 +32,12 @@ httpserver.post('/reg', reg.register);
 httpserver.listen(config.httpport, function () {
     logger.log('info', 'JSEP to Sip Gateway ' + httpserver.name + 'listening at '+ httpserver.url);
 });
+
+module.exports.stop = function(){
+  try{
+    SipServer.stop();
+    httpserver.close();
+  }catch(e){
+   logger.log('stop requested, but servers did not finish starting up');
+  }
+}

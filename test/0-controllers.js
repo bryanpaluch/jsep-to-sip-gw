@@ -36,7 +36,7 @@ var SessionControllerMock =
     }
 }
 
-
+var instance;
 
 describe('Test Rest Interface', function(){
   before(function(done){
@@ -46,10 +46,11 @@ describe('Test Rest Interface', function(){
     mockery.registerMock('./config/conftool', mockConfig);
     mockery.warnOnReplace(false);
     mockery.warnOnUnregistered(false);
-    require('../server.js');
+    instance = require('../server.js');
     done();
   });
   after(function(done){
+    instance.stop();
     mockery.deregisterMock('../lib/SessionController');
     mockery.disable();
     done();

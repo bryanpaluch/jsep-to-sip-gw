@@ -13,7 +13,14 @@ var mockConfig = {
       org: 'Kabletownlabs',
       plugins: [
         { name: 'basic', run: true, config : {}}
-      ]
+      ],
+      routing: {
+        'example.net:example.net' : 'basic', 
+        'ims.example.net:example.net' : 'siphttp',
+        'example.net:ims.example.net' : 'httpsip',
+        'x1.example.net:example.net' : 'mediaHook-dialogic',
+        'x1.example.net:example.net' : 'mediaHook-dialogic',
+      }
     }
   }
 }
@@ -57,6 +64,28 @@ describe('Test SessionController', function(){
     mockery.disable();
     done();
   });
+  it("SessionController getLinkerType returns the correct linker", function(done){
+    var callerBasic = new HttpSession({role: 'caller', to: 'test@example.net', 
+                                           from: 'bryan@example.net', display: 'rtcwithme', 
+                                           callbackUrl: 'http://127.0.0.1:8081/session/', 
+                                           sessid: '12382-238823-82388238-8234kjsdk-238234'});
+    var type = sc.getLinkerType(callerBasic);
+    assert.equal(type, 'basic');
+    var callerSiphttp = new HttpSession({role: 'caller', to: 'test@example.net', 
+                                           from: 'bryan@ims.example.net', display: 'rtcwithme', 
+                                           callbackUrl: 'http://127.0.0.1:8081/session/', 
+                                           sessid: '12382-238823-82388238-8234kjsdk-238234'});
+    var type = sc.getLinkerType(callerSiphttp);
+    assert.equal(type, 'siphttp');
+    var callerHttpSip = new HttpSession({role: 'caller', to: 'test@ims.example.net', 
+                                           from: 'bryan@example.net', display: 'rtcwithme', 
+                                           callbackUrl: 'http://127.0.0.1:8081/session/', 
+                                           sessid: '12382-238823-82388238-8234kjsdk-238234'});
+    var type = sc.getLinkerType(callerHttpSip);
+    assert.equal(type, 'httpsip');
+
+    done();  
+  });
   it("SessionController _listen", function(done){
     var i1 = new HttpSession({role: 'caller', to: 'test@kabletown.com', 
                                            from: 'bryan@kabletown.com', display: 'rtcwithme', 
@@ -86,7 +115,7 @@ describe('Test SessionController', function(){
     sc.sessions[i2.sessid] = i2;
     sc._listen(i1);
     sc._listen(i2);
-    sc._linkSessions(i1, i2);
+    sc._linkSessions(i1, i2, 'basic');
     i1.emit('deleteMe');
     i2.emit('deleteMe');
     done();
