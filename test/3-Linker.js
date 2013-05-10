@@ -1,12 +1,40 @@
-
+var mockery = require('mockery');
 var assert = require('assert');
-var Linker = require('../lib/Linker.js');
-
+var mockConfig = {
+  getConf: function(){
+    return {
+      httpport: 8080,
+      outboundproxy: '127.0.0.1:5080',
+      domain: 'Kabletownlabs',
+      localHost: '127.0.0.1:5060',
+      org: 'Kabletownlabs',
+      plugins: [
+        { name: 'basic', run: true, config : {}}
+      ],
+      routing: {
+        'example.net:example.net' : 'basic', 
+        'ims.example.net:example.net' : 'siphttp',
+        'example.net:ims.example.net' : 'httpsip',
+        'x1.example.net:example.net' : 'mediaHook-dialogic',
+        'x1.example.net:example.net' : 'mediaHook-dialogic',
+      }
+    }
+  }
+}
+var Linker;
 describe('Test Linker', function(){
-  before(function(done){
+  before(function(done){    
+    mockery.enable();
+    mockery.warnOnReplace(false);
+    mockery.warnOnUnregistered(false);
+    mockery.registerMock('../config/conftool', mockConfig);
+    mockery.registerMock('./config/conftool', mockConfig);
+    Linker = require('../lib/Linker.js');
+ 
     done();
   });
   after(function(done){
+    mockery.disable();
     done();
   });
 
