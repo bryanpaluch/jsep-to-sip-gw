@@ -18,13 +18,13 @@ module.exports = function(server) {
 		
     socket.on('rtc_client_message', function(data) {
 			var target = data.target;
-			data.from = this.id;
+			data.clientid = this.id;
 			if (data.type == 'offer' || data.type == 'answer') {
 				socket.legs[target] = true;
 			}
       if(data.type == 'offer'){
-              data.toAlias = data.target;
-              data.fromAlias = (socket.alias) ? socket.alias : 'unknown';
+              data.to = data.target;
+              data.from = (socket.alias) ? socket.alias : 'unknown';
               pc.send(data);
       }else{
 			        console.log(data);

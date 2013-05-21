@@ -10,6 +10,7 @@ exports.create = function (req, res, next) {
     var to = req.body.to;
     var from = req.body.from;
     var fromDisplay = req.body.fromDisplay;
+    logger.log('info', 'create:', req.body); 
     if(callbackUrl && to && from){
 
       var calldirection;
@@ -31,6 +32,7 @@ exports.create = function (req, res, next) {
 
 exports.add = function(req, res, next){
     logger.log('info', 'request for session ' + req.params.uuid);
+    logger.log('info', 'add:', req.body); 
     sc.addMessage(req.params.uuid,req.body, function(success){
       if(success)
         res.send(200);

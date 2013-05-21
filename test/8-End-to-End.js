@@ -1,8 +1,5 @@
 var mockery = require('mockery');
 var assert = require('assert');
-var restify = require('restify');
-var EventEmitter = new require('events').EventEmitter;
-var handler = new EventEmitter();
 var mockConfig = {
   getConf: function(){
     return {
@@ -13,27 +10,26 @@ var mockConfig = {
       org: 'Kabletownlabs',
       plugins: [
         { name: 'basic', run: true, config : {}}
-      ]
+      ],
+      routing: {
+        'example.net:example.net' : 'basic', 
+        'ims.example.net:example.net' : 'siphttp',
+        'example.net:ims.example.net' : 'httpsip',
+        'x1.example.net:example.net' : 'mediaHook-dialogic',
+        'x1.example.net:example.net' : 'mediaHook-dialogic',
+      }
+
     }
   }
 }
+var HttpEndpoint = require('./test_endpoints/http');
 
-var i1;
-var i2;
-
-var httpserver = restify.createServer({
-    name: 'jsep-to-sip-gateway',
-      version: '0.0.1'
-});
-var testController = function(req, res){
-  console.log(req.params.uuid); 
-  handler.emit(req.params.uuid, req);
-  res.send(200);
-}
 var instance;
+var he1;
 
 describe('End-To-End Functional tests', function(){
   before(function(done){
+    he1 = new HttpEndpoint({port: 9000, role: 'answerer'});
     mockery.deregisterAll();
     mockery.disable();
     mockery.enable();
@@ -42,15 +38,7 @@ describe('End-To-End Functional tests', function(){
     mockery.registerMock('../config/conftool', mockConfig);
     mockery.registerMock('./config/conftool', mockConfig);
     //bootstrap libraries that require mocks
-    httpserver.use(restify.acceptParser(httpserver.acceptable));
-    httpserver.use(restify.queryParser());
-    httpserver.use(restify.bodyParser({mapParams: false}));
-    httpserver.post('/session/:uuid', testController);
-    httpserver.listen(8082, function () {
-      done();
-    });
-
-
+    done();
   });
   after(function(done){
     instance.stop();
@@ -60,6 +48,20 @@ describe('End-To-End Functional tests', function(){
   });
   it("End-to-End start server", function(done){
     instance = require('../server.js');
-    done(); 
+    console.log('starting server'); 
+    setTimeout(function(){
+      done();
+    }, 100);
+  });
+  it("End-to-End basic http-http call", function(done){
+    he1.register("test1@example.net");
+    he1.register("test2@example.net");
+    he1.on('registered:test2@example.net', function(){
+      he1.call("test1@example.net", "test2@example.net");
+      he1.once('connected:test1:test2', function(callInfo){
+        assert.ok(callInfo);
+        done();
+      });
+    });
   });
 });

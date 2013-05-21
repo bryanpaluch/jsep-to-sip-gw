@@ -12,13 +12,14 @@ module.exports = {
     org: 'ComcastLabs',
     plugins: [
       { name: 'basic', run: true, config : {}}
+      { name: 'mediaHook-erizo', run: false, config : {}}
     ],
     routing: {
       'comcast.net:comcast.net' : 'basic', 
       'ims.comcast.net:comcast.net' : 'siphttp',
       'comcast.net:ims.comcast.net' : 'httpsip',
-      'x1.comcast.net:comcast.net' : 'mediaHook-dialogic',
-      'x1.comcast.net:comcast.net' : 'mediaHook-dialogic',
+      'x1.comcast.net:comcast.net' : 'mediaHook-erizo',
+      'x1.comcast.net:comcast.net' : 'mediaHook-erizo',
     }
 	},
 	test: {

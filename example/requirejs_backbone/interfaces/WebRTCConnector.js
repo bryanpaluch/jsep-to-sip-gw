@@ -155,9 +155,10 @@ exports.PhoneConnector = PhoneConnector;
 function doOffer(data) {
   var remoteTarget = data.target;
   var offerData = data;
-  var target = data.from;
-  var toAlias = data.toAlias;
-  var fromAlias = data.fromAlias;
+  var target = data.clientid;
+  var toAlias = data.to;
+  var fromAlias = data.from;
+  console.log('Doing offer data:', data);
   sessions[target] = {active : false, candidates: [], uuid : null, remoteTarget: remoteTarget};
 	request.post({url: url + '/session',json: {
 		callbackUrl: 'http://127.0.0.1:3000/session/',
@@ -203,7 +204,7 @@ function doCandidates(candidates){
     doCandidate(candidates[x]);
 }
 function doCandidate(data) {
-  var target = data.from;
+  var target = data.clientid;
   console.log('phoneConnector: new candidate for session ' + target);
   if(sessions[target]){
     if(sessions[target].active == true){
@@ -232,7 +233,7 @@ function doCandidate(data) {
 }
 
 function doAnswer(data) {
-  var target = data.from;
+  var target = data.clientid;
   console.log('WebRTCConnector: sending answer for session ' + target);
   if(sessions[target]){
     request.put({url: url + '/session/' + sessions[target].uuid, json: data}, function( err, res, data){
@@ -253,7 +254,7 @@ function doAnswer(data) {
   }
 }
 function doBye(data){
-  var target = data.from;
+  var target = data.clientid;
   console.log('phoneConnector: request to end session ' + target);
   if(sessions[target]){
     if(sessions[target].active == true){
