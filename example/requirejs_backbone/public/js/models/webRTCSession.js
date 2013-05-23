@@ -143,7 +143,7 @@ define([
       console.log('webrtcsession got a signaling message'); 
       if(msg.type === 'offer'){
         console.log('got new offer, changing state and popping request');
-        this.set('currentTarget', msg.fromAlias);
+        this.set('currentTarget', msg.from);
         this.set('state', 'incomingCall');
         this.set('offerSdp', msg);
       }
@@ -163,6 +163,8 @@ define([
         this.pc.addIceCandidate(candidate);
       } else if (msg.type === 'bye' && this.get('started')) {
         this._onRemoteHangup();
+      } else {
+        console.log('unsupported message type');
       }
     },
     _setLocalAndSendMessage: function(sessionDescription){

@@ -110,7 +110,7 @@ describe('Test HttpSession', function(){
     });
     i2.initiateLeg(); 
   });
-  it("HttpSession initiateLeg client is registered, will send message to registered endpoints callbackurl", function(done){
+/*  it("HttpSession initiateLeg client is registered, will send message to registered endpoints callbackurl", function(done){
     handler.once(i2.sessid, function(req){
       done();
     });
@@ -119,4 +119,5 @@ describe('Test HttpSession', function(){
       i2.initiateLeg(); 
     });
   });
+*/
 });

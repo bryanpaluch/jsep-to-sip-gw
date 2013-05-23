@@ -14,7 +14,12 @@ exports.register = function(req, res, next){
   var ttl = req.body.ttl;
   logger.log('info', 'Registration request');
   if(userid && callbackUrl && ttl){
-  logger.log('info', 'Registering ' + userid + '@' + callbackUrl + ' for ' + ttl + ' ms');
+  
+    if(callbackUrl.charAt(callbackUrl.length -1) != '/')
+      callbackUrl += '/';
+    logger.log('info', 'Registering ' + userid + '@' + callbackUrl + ' for ' + ttl + ' ms');
+  
+
     registrarDb.save({userid: userid,callbackUrl: callbackUrl, ttl: ttl}, function(err){
       if(err){
         return next(err);

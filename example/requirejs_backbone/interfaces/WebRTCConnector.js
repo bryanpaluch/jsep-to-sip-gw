@@ -18,6 +18,8 @@ function PhoneConnector() {
       if(message.type == 'answer' && !message.failure){
         console.log('got message of answer type');
         message['target'] = targets[req.params.uuid];
+        message['clientSessionId'] = sessions[message['target']].clientSessionId;
+        console.log('answer with clientSessionId', message);
         self.emit('event',message);
         }
       else if(message.type == 'candidates'){
@@ -28,6 +30,7 @@ function PhoneConnector() {
                 var target = targets[req.params.uuid];
                 candidate['target'] = target;
                 candidate['remoteTarget'] = sessions[target].remoteTarget;
+                candidate['clientSessionId'] = sessions[target].clientSessionId;
                 self.emit('event',candidate);
             } 
       }else if(message.type == 'candidate'){
@@ -35,17 +38,20 @@ function PhoneConnector() {
         var target = targets[req.params.uuid];
         message['target'] = target;
         message['remoteTarget'] = sessions[target].remoteTarget;
+        message['clientSessionId'] = sessions[target].clientSessionId;
         self.emit('event', message);
       }
       else if(message.type == 'bye'){
         var target = targets[req.params.uuid];
         message['target'] = target;
         message['remoteTarget'] = sessions[target].remoteTarget;
+        message['clientSessionId'] = sessions[target].clientSessionId;
         self.emit('event',message);
       }
       else if(message.type == 'answer' && message.failure){
         console.log('answer failed, stopping session' + req.params);
         message['target'] = targets[req.params.uuid];
+        message['clientSessionId'] = sessions[message['target']].clientSessionId;
         self.emit('event',message);
         console.log(sessions);
         delete sessions[req.params.uuid];
@@ -57,7 +63,7 @@ function PhoneConnector() {
           console.log('client ' + alias + 'is registered');
           message.target = registeredClients[alias];
           targets[req.params.uuid] = registeredClients[alias];
-          sessions[message.target] = {active : true, candidates: [], uuid : req.params.uuid, remoteTarget: message.from};
+          sessions[message.target] = {active : true, candidates: [], clientSessionId: req.params.uuid, uuid : req.params.uuid, remoteTarget: message.from};
           self.emit('event', message);
         }else{
           console.log('client ' + alias + 'is not registered failing');
@@ -158,8 +164,9 @@ function doOffer(data) {
   var target = data.clientid;
   var toAlias = data.to;
   var fromAlias = data.from;
+  var clientSessionId = data.clientSessionId || 'default';
   console.log('Doing offer data:', data);
-  sessions[target] = {active : false, candidates: [], uuid : null, remoteTarget: remoteTarget};
+  sessions[target] = {active : false, candidates: [], clientSessionId: clientSessionId, uuid : null, remoteTarget: remoteTarget};
 	request.post({url: url + '/session',json: {
 		callbackUrl: 'http://127.0.0.1:3000/session/',
     to: toAlias,
