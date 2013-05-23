@@ -32,6 +32,11 @@ HttpEndpoint.prototype.start = function(cb){
     cb();
   });
 }
+HttpEndpoint.prototype.stop = function(cb){
+  this.server.close(function(){
+    cb()
+  });
+}
 
 HttpEndpoint.prototype.controller = function (req, res){
   this.emit(req.params.uuid, req);

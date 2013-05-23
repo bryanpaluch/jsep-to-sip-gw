@@ -50,8 +50,9 @@ describe('Test HttpSession', function(){
   });
   after(function(done){
     mockery.disable();
-    httpserver.close();
-    done();
+    httpserver.close(function(){
+      done();
+    });
   });
   it("HttpSession constructor", function(done){
     i1 = new HttpSession({role: 'caller', to: 'test@kabletown.com', 

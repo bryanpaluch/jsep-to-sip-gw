@@ -46,7 +46,9 @@ describe('End-To-End Functional tests', function(){
     instance.stop();
     mockery.deregisterAll();
     mockery.disable();
-    done();
+    he1.stop(function(){
+      done();
+    });
   });
   it("End-to-End start server", function(done){
     instance = require('../server.js');
@@ -63,6 +65,7 @@ describe('End-To-End Functional tests', function(){
     var callbackCount = 0;
     var callbacksRequired = 3;
     var countAndExit = function(){
+      console.log('count and exit called', callbackCount, callbacksRequired);
       callbackCount++;
       if(callbackCount == callbacksRequired)
         done();
