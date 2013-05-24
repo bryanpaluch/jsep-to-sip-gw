@@ -1,9 +1,11 @@
 var mockery = require('mockery');
 var assert = require('assert');
+var path = require('path');
 var mockConfig = {
   getConf: function(){
     return {
-      httpport: 8080,
+      httpport: 8082,
+      sipport: 5063,
       outboundproxy: '127.0.0.1:5080',
       domain: 'Kabletownlabs',
       localHost: '127.0.0.1:5060',
@@ -29,6 +31,8 @@ var he1;
 
 describe('End-To-End Functional tests', function(){
   before(function(done){
+//    var serverp = path.resolve('../server.js');
+//    delete require.cache[serverp];
     he1 = new HttpEndpoint({port: 9000, role: 'answerer'});
     mockery.deregisterAll();
     mockery.disable();
@@ -43,21 +47,25 @@ describe('End-To-End Functional tests', function(){
     });
   });
   after(function(done){
-    instance.stop();
-    mockery.deregisterAll();
-    mockery.disable();
-    he1.stop(function(){
-      done();
+    instance.stop(function(){
+      he1.stop(function(){
+        mockery.deregisterAll();
+        mockery.disable();
+        done();
+      });
     });
   });
   it("End-to-End start server", function(done){
-    instance = require('../server.js');
     console.log('starting server'); 
-    setTimeout(function(){
+    instance = require('../server.js');
+    instance.start(function(){
+      console.log('server started');
       done();
-    }, 100);
+    });
   });
   it("End-to-End basic http-http call", function(done){
+    console.log('starting functional test');
+    console.log(instance);
     var user1 = "test1@example.net";
     var user2 = "test2@example.net";
     he1.register(user1);
@@ -74,9 +82,11 @@ describe('End-To-End Functional tests', function(){
       countAndExit();
       he1.call(user1, user2);
       he1.once('gotOffer:' + user1 + ':' + user2, function(callInfo){
+        console.log('got the offer'); 
         countAndExit();
       });
       he1.once('gotAnswer:' + user1 + ':' + user2, function(callInfo){
+        console.log('got the answer');
         countAndExit();
       });
     });

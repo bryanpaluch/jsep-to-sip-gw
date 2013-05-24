@@ -25,7 +25,7 @@ exports.create = function (req, res, next) {
       res.send({uuid : uuid, session: 'active', calldirection: calldirection, callbackUrl: callbackUrl});
     }else{
       logger.log('error', 'missing body parameter', req.body);
-      res.send(400, new Error('missing body parameter'));
+      res.send(400);
       return next();
     }
 };

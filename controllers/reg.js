@@ -31,7 +31,7 @@ exports.register = function(req, res, next){
     });
   }else{
     logger.log('error', 'missing body parameter', req.body);
-    res.send(400, new Error('missing body parameter'));
+    res.send(400);
     return next();
   }
 };

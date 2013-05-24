@@ -4,13 +4,18 @@ var restify = require('restify');
 
 var httpclient = restify.createJsonClient({
   version: '*',
-  url: 'http://127.0.0.1:8080'
+  url: 'http://127.0.0.1:8080',
+  connectTimeout: 100,
+  retry:{
+    retries: 0
+  }
 });
 
 var mockConfig = {
   getConf: function(){
     return {
       httpport: 8080,
+      sipport: 5060,
       outboundproxy: '127.0.0.1:5080',
       domain: 'cabletownlabs',
       localHost: '127.0.0.1:5060',
@@ -40,20 +45,26 @@ var instance;
 
 describe('Test Rest Interface', function(){
   before(function(done){
-    mockery.enable();
+    mockery.enable({useCleanCache:true});
     mockery.registerMock('../lib/SessionController', SessionControllerMock);
     mockery.registerMock('../config/conftool', mockConfig);
     mockery.registerMock('./config/conftool', mockConfig);
     mockery.warnOnReplace(false);
     mockery.warnOnUnregistered(false);
     instance = require('../server.js');
-    done();
+    instance.start(function(){
+      done();
+    });
   });
   after(function(done){
-    instance.stop();
-    mockery.deregisterMock('../lib/SessionController');
-    mockery.disable();
-    done();
+    this.timeout(10000);
+    console.log('tests complete');
+    instance.stop(function(){
+      console.log('unloaded server');
+      mockery.deregisterMock('../lib/SessionController');
+      mockery.disable();
+      done();
+    });
   });
   it("Should respond 200 OK if it receives a post /session it should return a calldirection of sip for number based to field", function(done){
     var data = {
@@ -104,6 +115,7 @@ describe('Test Rest Interface', function(){
     }
     httpclient.post('/session',data,
       function(err, req, res, data){
+        console.log(data);
         assert.equal(res.statusCode, 400);
         done();
       }

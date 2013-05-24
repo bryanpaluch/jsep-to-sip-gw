@@ -1,43 +1,63 @@
-var restify = require('restify'),
-    request = require('request'),
-    logger = require('./lib/logwinston'),
-    SipServer = require('./lib/SipServer');
-var env = process.env.NODE_ENV || 'development';
-var config = require('./config/conftool').getConf();
-var httpserver = restify.createServer({
-    name: 'jsep-to-sip-gateway',
-      version: '0.0.1'
-});
 
-SipServer.start();
+var httpserver;
+var sipServer;
+var logger = require('./lib/logwinston');
 
-require('./lib/registrar_db').connect();
-
-httpserver.use(restify.acceptParser(httpserver.acceptable));
-httpserver.use(restify.queryParser());
-httpserver.use(restify.bodyParser({mapParams: false}));
-
-var call = require('./controllers/call');
-var reg = require('./controllers/reg');
-
-//inbound calls
-httpserver.post('/session', call.create);
-httpserver.put('/session/:uuid', call.add);
-httpserver.del('/session/:uuid', call.remove);
+module.exports.start = function (cb){
+  var restify = require('restify'),
+      sipServer = require('./lib/SipServer');
+  var config = require('./config/conftool').getConf();
+  httpserver = restify.createServer({
+      name: 'jsep-to-sip-gateway',
+        version: '0.0.1'
+  });
 
 
-//registration
-httpserver.post('/reg', reg.register);
+  require('./lib/registrar_db').connect();
 
-httpserver.listen(config.httpport, function () {
-    logger.log('info', 'JSEP to Sip Gateway ' + httpserver.name + 'listening at '+ httpserver.url);
-});
+  httpserver.use(restify.acceptParser(httpserver.acceptable));
+  httpserver.use(restify.queryParser());
+  httpserver.use(restify.bodyParser({mapParams: false}));
 
-module.exports.stop = function(){
+  var call = require('./controllers/call');
+  var reg = require('./controllers/reg');
+
+  //inbound calls
+  httpserver.post('/session', call.create);
+  httpserver.put('/session/:uuid', call.add);
+  httpserver.del('/session/:uuid', call.remove);
+
+
+  //registration
+  httpserver.post('/reg', reg.register);
+
+//change for easier testingc
+  logger.log('info', 'starting sip server on port ' + config.sipport);
+  sipServer.start({sipport: config.sipport});
+  httpserver.listen(config.httpport, function () {
+      logger.log('info', 'JSEP to Sip Gateway ' + httpserver.name + 'listening at '+ httpserver.url);
+      cb();
+  });
+}
+
+module.exports.stop = function(cb){
+  var enableDestroy = require('server-destroy');
   try{
-    SipServer.stop();
-    httpserver.close();
+    enableDestroy(httpserver);
+    var stops = 0;
+    var maybeCb = function(){
+      stops++;
+      if (stops > 1)
+        cb();
+    }
+    sipServer.stop(function(){
+      logger.log('info', 'sip server stopped'); 
+      maybeCb(); 
+    });
+    httpserver.destroy()
+    maybeCb(); 
   }catch(e){
+    cb();
    logger.log('stop requested, but servers did not finish starting up');
   }
 }
