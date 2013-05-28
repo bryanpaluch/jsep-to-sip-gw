@@ -12,11 +12,17 @@ var mockConfig = {
         { name: 'basic', run: true, config : {}}
       ],
       routing: {
-        'example.net:example.net' : 'basic', 
-        'ims.example.net:example.net' : 'siphttp',
-        'example.net:ims.example.net' : 'httpsip',
-        'x1.example.net:example.net' : 'mediaHook-dialogic',
-        'x1.example.net:example.net' : 'mediaHook-dialogic',
+        'http': {
+          'comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
+          'ims.comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
+          'comcast.net:ims.comcast.net' : { linker: 'basic', callee: 'http' },
+          'x1.comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
+        },
+        'sip' : {
+          'comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
+          'ims.comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
+          'x1.comcast.net:x1.comcast.net' : { linker: 'basic', callee: 'http' },
+        }
       }
     }
   }

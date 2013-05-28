@@ -13,13 +13,19 @@ var mockConfig = {
       org: 'Kabletownlabs',
       plugins: [
         { name: 'basic', run: true, config : {}}
-      ],
+      ],      
       routing: {
-        'example.net:example.net' : 'basic', 
-        'ims.example.net:example.net' : 'siphttp',
-        'example.net:ims.example.net' : 'httpsip',
-        'x1.example.net:example.net' : 'mediaHook-dialogic',
-        'x1.example.net:example.net' : 'mediaHook-dialogic',
+        'http': {
+          'bryan@example.net:test@example.net' : { linker: 'basic', callee: 'http' },
+          'bryan@example.net:test@ims.example.net' : { linker: 'httpsip', callee: 'sip' },
+          'kabletown.com:kabletown.com' : { linker: 'basic', callee: 'http' },
+          'x1.comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
+        },
+        'sip' : {
+          'bryan@ims.example.net:test@example.net' : { linker: 'siphttp', callee: 'http' },
+          'ims.comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
+          'x1.comcast.net:x1.comcast.net' : { linker: 'basic', callee: 'http' },
+        }
       }
     }
   }
@@ -65,25 +71,15 @@ describe('Test SessionController', function(){
     done();
   });
   it("SessionController getLinkerType returns the correct linker", function(done){
-    var callerBasic = new HttpSession({role: 'caller', to: 'test@example.net', 
-                                           from: 'bryan@example.net', display: 'rtcwithme', 
-                                           callbackUrl: 'http://127.0.0.1:8081/session/', 
-                                           sessid: '12382-238823-82388238-8234kjsdk-238234'});
-    var type = sc.getLinkerType(callerBasic);
+    
+    var type = sc.getLinkerType('http', 'bryan@example.net:test@example.net');
     assert.equal(type, 'basic');
-    var callerSiphttp = new HttpSession({role: 'caller', to: 'test@example.net', 
-                                           from: 'bryan@ims.example.net', display: 'rtcwithme', 
-                                           callbackUrl: 'http://127.0.0.1:8081/session/', 
-                                           sessid: '12382-238823-82388238-8234kjsdk-238234'});
-    var type = sc.getLinkerType(callerSiphttp);
+    
+    var type = sc.getLinkerType('sip', 'bryan@ims.example.net:test@example.net');
     assert.equal(type, 'siphttp');
-    var callerHttpSip = new HttpSession({role: 'caller', to: 'test@ims.example.net', 
-                                           from: 'bryan@example.net', display: 'rtcwithme', 
-                                           callbackUrl: 'http://127.0.0.1:8081/session/', 
-                                           sessid: '12382-238823-82388238-8234kjsdk-238234'});
-    var type = sc.getLinkerType(callerHttpSip);
+    
+    var type = sc.getLinkerType('http',  'bryan@example.net:test@ims.example.net');
     assert.equal(type, 'httpsip');
-
     done();  
   });
   it("SessionController _listen", function(done){
@@ -125,7 +121,7 @@ describe('Test SessionController', function(){
     registrarDb.save(obj, function(){
     });
     var uuid = sc.createSessions({to: 'test@kabletown.com',
-                       from: 'bryan@kabletown.com', display: 'rtcwithme',
+                       from: 'bryan@kabletown.com', display: 'rtcwithme', originator: 'http',
                        callbackUrl: 'http://127.0.0.1:8081/session/'});
     assert.ok(sc.sessions[uuid]);
     assert.ok(sc.sessions[uuid].http);

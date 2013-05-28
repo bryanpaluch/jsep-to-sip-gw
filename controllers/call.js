@@ -13,16 +13,12 @@ exports.create = function (req, res, next) {
     logger.log('info', 'create:', req.body); 
     if(callbackUrl && to && from){
 
-      var calldirection;
-        if(/^[0-9]+$/.test(to))
-          calldirection = 'sip';
-        else
-          calldirection = 'http';
+      var data = {to: to, from: from, display: fromDisplay, 
+                  originator: 'http', callbackUrl: callbackUrl};
 
-      var data = {to: to, from: from, display: fromDisplay, calldirection: calldirection, callbackUrl: callbackUrl};
       var uuid = sc.createSessions(data);
       logger.log('info', 'http session created with uuid ' + uuid);
-      res.send({uuid : uuid, session: 'active', calldirection: calldirection, callbackUrl: callbackUrl});
+      res.send({uuid : uuid, session: 'active', callbackUrl: callbackUrl});
     }else{
       logger.log('error', 'missing body parameter', req.body);
       res.send(400);
