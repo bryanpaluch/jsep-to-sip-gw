@@ -30,9 +30,11 @@ var mockConfig = {
   }
 }
 var HttpEndpoint = require('./test_endpoints/http');
+var SipEndpoint = require('./test_endpoints/sip');
 
 var instance;
 var he1;
+var se1;
 
 describe('End-To-End Functional tests', function(){
   before(function(done){
