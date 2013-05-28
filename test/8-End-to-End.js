@@ -14,13 +14,18 @@ var mockConfig = {
         { name: 'basic', run: true, config : {}}
       ],
       routing: {
-        'example.net:example.net' : 'basic', 
-        'ims.example.net:example.net' : 'siphttp',
-        'example.net:ims.example.net' : 'httpsip',
-        'x1.example.net:example.net' : 'mediaHook-dialogic',
-        'x1.example.net:example.net' : 'mediaHook-dialogic',
+        'http': {
+          'example.net:example.net' : { linker: 'basic', callee: 'http' },
+          'example.net:ims.example.net' : { linker: 'httpsip', callee: 'sip' },
+          'kabletown.com:kabletown.com' : { linker: 'basic', callee: 'http' },
+          'x1.comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
+        },
+        'sip' : {
+          'ims.example.net:example.net' : { linker: 'siphttp', callee: 'http' },
+          'ims.comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
+          'x1.comcast.net:x1.comcast.net' : { linker: 'basic', callee: 'http' },
+        }
       }
-
     }
   }
 }

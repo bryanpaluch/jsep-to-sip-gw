@@ -123,7 +123,6 @@ HttpEndpoint.prototype.register = function( alias) {
     callbackUrl: 'http://127.0.0.1:' + this.port + '/session',
     ttl: 60
   };
-  console.log(httpclient);
   httpclient.post('/reg', data, function(err, req, res, data){
     console.log("registered a user");
     self.registeredUsers[alias] = {};

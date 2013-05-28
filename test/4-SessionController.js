@@ -16,8 +16,8 @@ var mockConfig = {
       ],      
       routing: {
         'http': {
-          'bryan@example.net:test@example.net' : { linker: 'basic', callee: 'http' },
-          'bryan@example.net:test@ims.example.net' : { linker: 'httpsip', callee: 'sip' },
+          'example.net:example.net' : { linker: 'basic', callee: 'http' },
+          'example.net:ims.example.net' : { linker: 'httpsip', callee: 'sip' },
           'kabletown.com:kabletown.com' : { linker: 'basic', callee: 'http' },
           'x1.comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
         },
@@ -72,13 +72,13 @@ describe('Test SessionController', function(){
   });
   it("SessionController getLinkerType returns the correct linker", function(done){
     
-    var type = sc.getLinkerType('http', 'bryan@example.net:test@example.net');
+    var type = sc.getLinkerType('http', 'example.net:example.net');
     assert.equal(type, 'basic');
     
-    var type = sc.getLinkerType('sip', 'bryan@ims.example.net:test@example.net');
+    var type = sc.getLinkerType('sip', 'ims.example.net:example.net');
     assert.equal(type, 'siphttp');
     
-    var type = sc.getLinkerType('http',  'bryan@example.net:test@ims.example.net');
+    var type = sc.getLinkerType('http',  'example.net:ims.example.net');
     assert.equal(type, 'httpsip');
     done();  
   });
