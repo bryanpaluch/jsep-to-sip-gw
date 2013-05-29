@@ -66,6 +66,14 @@ HttpEndpoint.prototype.processSignaling= function( uuid, data){
     case 'candidate':
       this.reportCandidate(data);
     break;
+    
+    case 'bye':
+      this.reportBye(data);
+    break;
+
+    default:
+      throw new Error('Unknown message type IMPLEMENT!!! ' + data.type );
+    break;
   }
 }
 HttpEndpoint.prototype.reportOffer = function (data){
@@ -73,6 +81,10 @@ HttpEndpoint.prototype.reportOffer = function (data){
 }
 HttpEndpoint.prototype.reportAnswer= function (data){
   this.emit('gotAnswer:' +  data.to + ':' + data.from , data);
+}
+HttpEndpoint.prototype.reportBye= function (data){
+  console.log('gotBye:' +  data.to + ':' + data.from , data);
+  this.emit('gotBye:' +  data.to + ':' + data.from , data);
 }
 HttpEndpoint.prototype.reportCandidate = function (data){
   if(data.last)
@@ -157,8 +169,10 @@ HttpEndpoint.prototype.call = function( to, from){
         }
     ];
   httpclient.post('/session', create, function(err, req, res, data){
+    assert.equal(res.statusCode, 200); 
     assert.ok(data.uuid);
-    self.sessions[data.uuid] = create;
+    self.sessions[create.to + ':' + create.from] = {uuid: data.uuid};
+    console.log("Setting uuid ", self.sessions); 
     var sendAdds;
     sendAdds = function(cb){
       httpclient.put('/session/' + data.uuid, adds.shift(), function(err, req, res, data){
@@ -169,6 +183,23 @@ HttpEndpoint.prototype.call = function( to, from){
       });
     }
     sendAdds(sendAdds);
+  });
+
+}
+HttpEndpoint.prototype.endcall = function( to, from){
+  var self = this;
+  console.log('Going to see if we can delete the call'); 
+  if(!self.sessions[to + ':' + from]) return;
+ 
+  var uuid = self.sessions[to + ':' + from].uuid;
+  
+  console.log("Going to delete call " + uuid);
+  
+  httpclient.del('/session/' + uuid, function(err,req, res){
+    console.log(err); 
+    assert.ok(!err); 
+    console.log('sent delete');
+    assert.equal(res.statusCode, 200);
   });
 
 }

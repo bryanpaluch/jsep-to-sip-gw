@@ -23,7 +23,7 @@ var mockConfig = {
         },
         'sip' : {
           'bryan@ims.example.net:test@example.net' : { linker: 'siphttp', callee: 'http' },
-          'ims.comcast.net:comcast.net' : { linker: 'basic', callee: 'http' },
+          'ims.example.net:example.net' : { linker: 'siphttp', callee: 'http' },
           'x1.comcast.net:x1.comcast.net' : { linker: 'basic', callee: 'http' },
         }
       }
@@ -38,6 +38,7 @@ var httpserver = restify.createServer({
     name: 'jsep-to-sip-gateway',
       version: '0.0.1'
 });
+
 var testController = function(req, res){
   console.log(req.params.uuid); 
   handler.emit(req.params.uuid, req);
@@ -48,7 +49,7 @@ var sc;
 var HttpSession;
 describe('Test SessionController', function(){
   before(function(done){
-    mockery.enable();
+    mockery.enable({useCleanCache:true});
     mockery.warnOnReplace(false);
     mockery.warnOnUnregistered(false);
     mockery.registerMock('../config/conftool', mockConfig);

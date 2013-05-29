@@ -32,7 +32,7 @@ var registrarDb;
 var HttpSession;
 describe('Test HttpSession', function(){
   before(function(done){
-    mockery.enable();
+    mockery.enable({useCleanCache:true});
     mockery.warnOnReplace(false);
     mockery.warnOnUnregistered(false);
     mockery.registerMock('../config/conftool', mockConfig);

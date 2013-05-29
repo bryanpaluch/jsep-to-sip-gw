@@ -21,7 +21,7 @@ exports.create = function (req, res, next) {
         logger.log('info', 'http session created with uuid ' + uuid);
         res.send({uuid : uuid, session: 'active', callbackUrl: callbackUrl});
       }else{
-        logger.log('info', 'http session failed,  domains not in routing table ' + to + from);
+        logger.log('error', 'http session failed,  domains not in routing table ' + to + ':'+ from);
         res.send(404, 'Can not route to domains');
       }
     }else{
