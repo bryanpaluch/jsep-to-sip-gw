@@ -75,7 +75,7 @@ describe('End-To-End Functional tests', function(){
       done();
     });
   });
-  it.skip("End-to-End basic http-http call", function(done){
+  it("End-to-End basic http-http call", function(done){
     console.log('starting http-http test');
     console.log(instance);
     var user1 = "test1@example.net";
@@ -136,7 +136,7 @@ describe('End-To-End Functional tests', function(){
       }, 20);
     });
     
-    se1.once('gotBye:' + user2 + ':' + user1, function(callInfo){
+    he1.once('gotBye:' + user2 + ':' + user1, function(callInfo){
       countAndExit();
     });
 
