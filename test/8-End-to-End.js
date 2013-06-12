@@ -54,7 +54,7 @@ describe('End-To-End Functional tests', function(){
     he1.start(function(){ 
       done();
     });
-    se1 = new SipEndpoint({port: 9009, role: 'answerer'});
+    se1 = new SipEndpoint({port: 9009, role: 'answerer', outboundproxy: '127.0.0.1:5063', localhost: '127.0.0.1:9009'});
     se1.start();
   });
   after(function(done){
